@@ -366,6 +366,41 @@ claim rests on the Art 3(1) argument.
 
 ---
 
+## ADR-023 — Apache-2.0 for code; source law is public domain
+
+**Status:** Accepted
+**Date:** 2026-08-17
+
+### Decision
+
+Project code is licensed **Apache-2.0**. The SNAP source snapshots under
+`examples/snap/sources/` are US federal regulations and carry no copyright.
+
+### Why Apache rather than MIT
+
+The project's stated aim is that other systems adopt its IR and interfaces. Apache-2.0
+carries an explicit patent grant and a defensive termination clause; MIT does not. For a
+format intended as shared infrastructure, contributors and adopters both benefit from
+that grant being explicit rather than implied.
+
+### Source text
+
+US federal regulations are not subject to copyright under the government edicts doctrine,
+so the snapshots are redistributable and the fixture reproduces offline without a fragile
+URL fetch. `examples/snap/sources/manifest.json` records the basis alongside each hash.
+
+**This does not generalise.** UK and Canadian legislation is Crown copyright, EU material
+falls under the Open Data Directive, and agency benefit manuals frequently state no status
+at all. Any future corpus needs its own rights review before redistribution — the
+manifest has a `rights` block for exactly that.
+
+### Reversible
+
+No external contributions have been accepted yet, so this can still be changed without
+relicensing anyone else's work. After the first outside contribution it cannot.
+
+---
+
 ## Pending ADRs
 
 These should be decided with examples/tests, not prematurely:
@@ -375,5 +410,5 @@ These should be decided with examples/tests, not prematurely:
 - period/periodicity algebra;
 - rounding rules;
 - human-required predicate semantics;
-- public code/data license choices;
+- canonical plugin packaging (license choices settled by ADR-023);
 - canonical plugin packaging.
