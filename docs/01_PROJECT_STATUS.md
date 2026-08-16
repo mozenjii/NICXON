@@ -188,10 +188,10 @@ Keep these up to date once implementation starts:
 | IR schema version | 0.1.0 |
 | Golden policy corpora | 1 (SNAP, 13 rules from 7 CFR 273.9) |
 | Deterministic rule features implemented | 12 expression nodes, exceptions, overrides, 4-state values, trace |
-| Tests | 20 passing (`pytest`) |
+| Tests | 25 passing (`pytest`) |
+| Mutation score | **17/17 caught (100%)** |
 | LLM compiler passes implemented | 0 — deliberately, until the core is proven |
 | Validators implemented | 0 — next milestone |
-| Mutation harness | Not built — the missing evidence that generated tests work |
 | Approved adapter targets | 0 built, 1 planned (OpenFisca, as a code generator) |
 | External contributors | 0 |
 | Public benchmark release | No |
@@ -207,11 +207,24 @@ Keep these up to date once implementation starts:
 | At least one dependency chain | **Met** — gross income → deductions → net income → eligibility |
 | Source spans attached to every rule | **Met** — all 13 cite a clause |
 | Deterministic evaluation | **Met** — fixed-point evaluator, no model in the path |
-| Generated boundary tests | **Not met** — boundaries are hand-written; the generator is not built |
+| Generated boundary tests | **Met** — generator probes every threshold at x-1/x/x+1 |
 | Explicit `UNKNOWN` behaviour | **Met** — propagates to the decision, raises on `__bool__` |
 | Execution trace explaining the result | **Met** — records rule, target, scope, and base/exception/override |
 
-Two of nine outstanding. M0 is not closed.
+**M0 is closed.** All nine criteria met.
+
+The mutation harness is what makes that claim worth anything. Its first run scored 44%,
+and each of the ten survivors was a real hole: the suite could not detect a deleted
+"notwithstanding" override, could not distinguish conjunction from disjunction in the
+final decision, and never exercised four floor guards. Those are now closed and the score
+is 17/17.
+
+### Next milestone — M1: validators
+
+Deterministic checks that reject a bad package before it can be evaluated:
+reference resolution, cycle detection, temporal consistency, unreachable-rule detection
+(the mutation harness already surfaced one unconditionally overridden rule), and
+provenance completeness.
 
 ## Known risks already identified
 
