@@ -70,13 +70,13 @@ OpenFisca / Catala / LegalRuleML / other adapters
       covering income eligibility and benefit calculation.
 - [x] Provider-neutral model interface (Claude + GPT) with prompt-injection guard.
 - [x] Adversarial review gate — seeded errors, catch rate, rubber-stamp detection.
+- [x] Reviewer application — clause beside rule, hash-chained audit log.
 - [x] CLI.
 
 ### Not built yet
 
 - [ ] Source ingestion pipeline.
 - [ ] LLM extraction passes — the interface exists; nothing calls a model yet.
-- [ ] Human review UI (the gate's logic exists; the interface does not).
 - [ ] OpenFisca adapter.
 - [ ] Public benchmark.
 
@@ -87,7 +87,7 @@ See [`docs/01_PROJECT_STATUS.md`](docs/01_PROJECT_STATUS.md) for the detailed st
 ```bash
 python -m venv .venv
 .venv/bin/pip install -e ".[dev]"        # Windows: .venv/Scripts/pip
-pytest                                    # 145 tests
+pytest                                    # 178 tests
 ```
 
 Check a rule package, then run a household through it:
@@ -115,6 +115,31 @@ A missing input never becomes a denial — it evaluates to `UNKNOWN` and propaga
 ruleweaver boundaries examples/snap/rules.json examples/snap/scenarios/baseline.json \
   --observe var.household.is_income_eligible
 ```
+
+### Reviewing extracted rules
+
+```bash
+pip install -e ".[review]"
+ruleweaver review examples/snap/rules.json
+```
+
+Opens a queue at `http://127.0.0.1:8000`. Each rule is shown beside the statutory text it
+came from, with its diagnostics and any unresolved readings. Decisions are written to a
+hash-chained, append-only log — a row altered outside the application breaks the chain and
+`/metrics` reports where.
+
+Approvals expire on their own: they are recorded against the hash of the clause the rule
+cites, so re-fetching a source that has changed moves every rule resting on it back into
+the queue.
+
+`/metrics` reports the numbers that decide whether the gate is real — the share of
+deliberately seeded faults reviewers caught, the median time spent per rule, and the
+approval rate. It warns when those look like rubber-stamping. An unseeded queue is
+reported as *unmeasured*, not as a zero catch rate; the two mean opposite things.
+
+**The bundled identity resolver trusts a header and warns that it is unfit for
+deployment.** Wire in a real identity provider before running this anywhere real — an
+audit log whose reviewer field the client can set is not an audit log.
 
 ### Amendment impact
 
