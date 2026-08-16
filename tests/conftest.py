@@ -22,9 +22,13 @@ PARAMETER_OVERRIDES = {
         ("3", "48_dc"): Decimal("26650"),
         ("8", "48_dc"): Decimal("54150"),
     },
+    # The three-person computed value sits BELOW the statutory minimum on purpose.
+    # With both at 204 the "notwithstanding" override is unobservable — max(204,204)
+    # is 204 whether or not the override fires — and mutation testing showed the suite
+    # could not tell the override had been deleted.
     "param.snap.standard_deduction": {
         ("1", "48_dc"): Decimal("204"),
-        ("3", "48_dc"): Decimal("204"),
+        ("3", "48_dc"): Decimal("180"),
         ("6", "48_dc"): Decimal("234"),
     },
     "param.snap.standard_deduction_minimum": {("48_dc",): Decimal("204")},
