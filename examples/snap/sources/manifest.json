@@ -3,7 +3,7 @@
   "description": "US SNAP federal regulations. Authoritative source snapshots for the RuleWeaver v0.1 golden fixture.",
   "rights": {
     "status": "public-domain",
-    "basis": "US government edicts doctrine — federal regulations are not subject to copyright.",
+    "basis": "US government edicts doctrine \u2014 federal regulations are not subject to copyright.",
     "redistribution": "permitted",
     "reviewed": "2026-08-17"
   },
@@ -33,7 +33,17 @@
       "retrieved_at": "2026-08-17",
       "sha256": "2844334a27728b7bf87ee638b1f5d4f0d99b82e131821379440778fbb8cd588c",
       "bytes": 58938
+    },
+    {
+      "source_id": "7cfr-273.10",
+      "citation": "7 CFR 273.10",
+      "title": "Determining household eligibility and benefit levels",
+      "file": "7cfr-273.10.xml",
+      "point_in_time": "2026-01-01",
+      "retrieved_at": "2026-08-17",
+      "sha256": "bb8c9f79b3e734d165b54485b4400b243443f1845ae318d122dfd86a3ff7da4e",
+      "bytes": 53868
     }
   ],
-  "verification": "sha256sum 7cfr-271.2.xml 7cfr-273.9.xml and compare against the sha256 fields above."
+  "verification": "sha256sum 7cfr-271.2.xml 7cfr-273.9.xml 7cfr-273.10.xml and compare against the sha256 fields above."
 }
