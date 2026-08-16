@@ -19,6 +19,16 @@ dev = ["pytest>=8.0"]
 # neither SDK — which is ADR-003 enforced by packaging rather than by convention.
 anthropic = ["anthropic>=0.69"]
 openai = ["openai>=1.60"]
+# The review application. SQLAlchemy so the audit log runs on SQLite in development and
+# PostgreSQL in deployment without a rewrite; FastAPI + Jinja so the whole reviewer
+# surface is one Python process and one container, with no JavaScript build step.
+review = [
+    "sqlalchemy>=2.0",
+    "fastapi>=0.115",
+    "jinja2>=3.1",
+    "uvicorn>=0.32",
+    "python-multipart>=0.0.9",
+]
 
 [project.scripts]
 ruleweaver = "ruleweaver.cli:main"
