@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}{{ rule.id }} — review{% endblock %}
+{% block content %}
+
+<p><a href="/">← Queue</a></p>
+<h2 style="margin:.3rem 0 1rem; font-size:1.15rem">
+  {{ rule.id }}
+  <span class="status status-{{ status.value }}" style="margin-left:.6rem">{{ status.value.replace('_', ' ') }}</span>
+</h2>
+
+<div class="split">
+  <div>
+    <div class="panel">
+      <h2>Source</h2>
+      {% for s in rule.sources %}
+        <p class="muted" style="margin:.2rem 0 .5rem"><strong>{{ s.citation or s.source_id }}</strong></p>
+        {% if s.quote %}<blockquote>{{ s.quote }}</blockquote>{% else %}
+          <p class="muted">No quoted text recorded for this span — the rule cites the
+          clause but nobody captured what it says. Treat that as a gap.</p>
+        {% endif %}
+      {% else %}
+        <p class="muted">This rule cites no source. It cannot be approved.</p>
+      {% endfor %}
+    </div>
+
+    {% if ambiguities %}
+    <div class="panel">
+      <h2>Unresolved readings</h2>
+      {% for a in ambiguities %}
+        <p><strong>{{ a.question }}</strong></p>
+        <ul>
+          {% for i in a.interpretations %}<li>{{ i.description }}</li>{% endfor %}
+        </ul>
+        {% if a.resolution %}
+          <p class="muted">Recorded choice: {{ a.resolution.get('chosen') }} —
+             {{ a.resolution.get('rationale') }}</p>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="panel">
+      <h2>Proposed rule</h2>
+      <pre>{{ rule.model_dump_json(indent=2, by_alias=True) }}</pre>
+    </div>
+
+    {% if diagnostics %}
+    <div class="panel">
+      <h2>Diagnostics</h2>
+      {% for d in diagnostics %}
+        <div class="diag diag-{{ d.severity }}">
+          <code>{{ d.code }}</code> {{ d.message }}
+          {% if d.suggestion %}<div class="muted">{{ d.suggestion }}</div>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Decision</h2>
+  <form method="post" action="/rule/{{ rule.id }}/decide" id="decide">
+    <input type="hidden" name="duration_seconds" id="duration_seconds" value="0">
+
+    <label for="decision">What is your judgement?</label>
+    <select name="decision" id="decision">
+      {% for d in decisions %}
+        <option value="{{ d.value }}">{{ d.value.replace('_', ' ') }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="note">Reasoning</label>
+    <textarea name="note" id="note" rows="3"
+      placeholder="Required when rejecting or marking ambiguous. Say what the source actually requires, not just that the rule is wrong."></textarea>
+
+    <button type="submit">Record decision</button>
+  </form>
+</div>
+
+{% if history %}
+<div class="panel">
+  <h2>History</h2>
+  <table>
+    <thead><tr><th>When</th><th>Reviewer</th><th>Decision</th><th>Took</th><th>Note</th></tr></thead>
+    <tbody>
+    {% for e in history|reverse %}
+      <tr>
+        <td class="muted">{{ e.at[:19].replace('T', ' ') }}</td>
+        <td>{{ e.reviewer }}</td>
+        <td><span class="status status-{{ e.decision.value }}">{{ e.decision.value.replace('_', ' ') }}</span></td>
+        <td class="muted">{% if e.duration_seconds %}{{ '%.0f'|format(e.duration_seconds) }}s{% else %}—{% endif %}</td>
+        <td class="muted">{{ e.note or '' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<script>
+  // Review duration is measured here, not on the server: the number that matters is how
+  // long a person looked at the rule, and a server-side timer would measure the network.
+  // performance.now() is monotonic, so it survives a clock change mid-review.
+  (function () {
+    var shownAt = performance.now();
+    document.getElementById('decide').addEventListener('submit', function () {
+      document.getElementById('duration_seconds').value =
+        ((performance.now() - shownAt) / 1000).toFixed(1);
+    });
+  })();
+</script>
+
+{% endblock %}
