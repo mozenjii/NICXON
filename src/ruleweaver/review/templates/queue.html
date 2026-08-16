@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Review queue — {{ package.package_id }}{% endblock %}
+{% block content %}
+
+<p class="muted">
+  {{ package.package_id }} · {{ package.rules|length }} rules ·
+  <strong>{{ pending }}</strong> awaiting review
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 8rem">Status</th>
+      <th>Rule</th>
+      <th style="width: 9rem">Kind</th>
+      <th style="width: 14rem">Cites</th>
+      <th style="width: 6rem">Flags</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for row in rows %}
+    <tr>
+      <td><span class="status status-{{ row.status.value }}">{{ row.status.value.replace('_', ' ') }}</span></td>
+      <td>
+        <a href="/rule/{{ row.rule.id }}">{{ row.rule.id }}</a>
+        {% if row.rule.interpretation.note %}
+          <div class="muted" style="font-size:.85em">{{ row.rule.interpretation.note|truncate(110) }}</div>
+        {% endif %}
+      </td>
+      <td class="muted">{{ row.rule.kind }}</td>
+      <td class="muted">
+        {% for s in row.rule.sources %}{{ s.citation or s.source_id }}{% if not loop.last %}, {% endif %}{% endfor %}
+      </td>
+      <td>
+        {% if row.diagnostics %}
+          <span class="status status-ambiguous">{{ row.diagnostics|length }}</span>
+        {% else %}
+          <span class="muted">—</span>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<p class="muted" style="margin-top:1.5rem; font-size:.85em">
+  Approvals expire when the clause a rule cites changes. A rule shown as
+  <span class="status status-stale">stale</span> was approved against a source that has
+  since moved and needs looking at again.
+</p>
+
+{% endblock %}
