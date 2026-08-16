@@ -1,0 +1,27 @@
+[project]
+name = "ruleweaver"
+version = "0.1.0"
+description = "A compiler for turning natural-language rules and regulations into provenance-preserving, testable, executable rule representations."
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Mozenjii", email = "mhbamdm@gmail.com" }]
+readme = "README.md"
+
+# Pydantic carries the IR schema: validation, typed parsing and JSON Schema
+# export all come from one dependency, and docs/13_REPO_STRUCTURE.md requires
+# the IR package to stay free of model-provider and target-runtime imports.
+dependencies = ["pydantic>=2.6"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ruleweaver"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
