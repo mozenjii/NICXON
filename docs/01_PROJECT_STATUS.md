@@ -132,8 +132,8 @@ Checked items are built and covered by tests. Everything unchecked is genuinely 
 
 - [x] review decision model.
 - [x] approval workflow.
-- [ ] source/rule side-by-side UI.
-- [ ] edit/reject/approve UX.
+- [x] source/rule side-by-side UI.
+- [x] edit/reject/approve UX.
 - [x] audit log.
 
 ### Adapters
@@ -190,14 +190,15 @@ Keep these up to date once implementation starts:
 | IR schema version | 0.1.0 |
 | Golden policy corpora | 1 (SNAP, 15 rules from 7 CFR 273.9 and 273.10) |
 | Deterministic rule features implemented | 12 expression nodes, exceptions, overrides, 4-state values, trace |
-| Tests | 145 passing (`pytest`) |
+| Tests | 178 passing (`pytest`) |
 | Mutation score | **22/22 caught (100%)** |
 | Validators implemented | 16, stable `RWxxxx` codes |
 | Test generators | boundary + date transition |
 | Amendment impact | semantic diff + dependency closure + outcome comparison |
-| CLI | `validate`, `evaluate`, `boundaries`, `diff`, `schema` |
+| CLI | `validate`, `evaluate`, `boundaries`, `diff`, `review`, `schema` |
 | Model interface | Provider-neutral; Claude + GPT adapters; injection guard |
-| Review gate | Append-only log, derived status, seeded-error catch rate |
+| Review gate | Hash-chained append-only log, derived status, seeded-error catch rate |
+| Review application | FastAPI + Jinja, one container; SQLite or PostgreSQL |
 | LLM compiler passes implemented | 0 — the interface exists; no extraction pass yet |
 | Approved adapter targets | 0 built, 1 planned (OpenFisca, as a code generator) |
 | External contributors | 0 |
