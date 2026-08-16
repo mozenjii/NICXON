@@ -127,6 +127,29 @@ def cmd_diff(args) -> int:
     return 0
 
 
+def cmd_review(args) -> int:
+    """Serve the reviewer application."""
+    try:
+        import uvicorn
+
+        from .review.app import create_app
+        from .review.store import ReviewStore, build_engine
+    except ImportError as exc:
+        print(f"the review extra is not installed: {exc}\n"
+              f'  pip install "ruleweaver[review]"', file=sys.stderr)
+        return 1
+
+    package = _load_or_exit(args.package, verify=not args.no_verify)
+    store = ReviewStore(build_engine(args.database))
+    app = create_app(package, store, seed_rate=args.seed_rate, salt=args.salt)
+
+    print(f"reviewing {len(package.rules)} rules from {args.package}")
+    print(f"audit log: {args.database or 'sqlite:///ruleweaver-review.db'}")
+    print(f"http://{args.host}:{args.port}\n")
+    uvicorn.run(app, host=args.host, port=args.port, log_level="warning")
+    return 0
+
+
 def cmd_schema(args) -> int:
     print(json.dumps(RulePackage.model_json_schema(), indent=2))
     return 0
@@ -161,6 +184,18 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--observe", action="append", help="variable id to compare")
     p.add_argument("--no-verify", action="store_true")
     p.set_defaults(func=cmd_diff)
+
+    p = sub.add_parser("review", help="serve the reviewer application")
+    p.add_argument("package")
+    p.add_argument("--host", default="127.0.0.1")
+    p.add_argument("--port", type=int, default=8000)
+    p.add_argument("--database", default=None,
+                   help="SQLAlchemy URL; defaults to RULEWEAVER_DATABASE_URL or local SQLite")
+    p.add_argument("--seed-rate", type=float, default=0.1,
+                   help="fraction of rules that carry a deliberately seeded fault")
+    p.add_argument("--salt", default="", help="rotate per review campaign")
+    p.add_argument("--no-verify", action="store_true")
+    p.set_defaults(func=cmd_review)
 
     p = sub.add_parser("schema", help="print the JSON Schema for a rule package")
     p.set_defaults(func=cmd_schema)
