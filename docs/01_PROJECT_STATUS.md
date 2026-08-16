@@ -188,10 +188,13 @@ Keep these up to date once implementation starts:
 | IR schema version | 0.1.0 |
 | Golden policy corpora | 1 (SNAP, 13 rules from 7 CFR 273.9) |
 | Deterministic rule features implemented | 12 expression nodes, exceptions, overrides, 4-state values, trace |
-| Tests | 25 passing (`pytest`) |
+| Tests | 79 passing (`pytest`) |
 | Mutation score | **17/17 caught (100%)** |
+| Validators implemented | 16, stable `RWxxxx` codes |
+| Test generators | boundary + date transition |
+| Amendment impact | semantic diff + dependency closure + outcome comparison |
+| CLI | `validate`, `evaluate`, `boundaries`, `diff`, `schema` |
 | LLM compiler passes implemented | 0 — deliberately, until the core is proven |
-| Validators implemented | 0 — next milestone |
 | Approved adapter targets | 0 built, 1 planned (OpenFisca, as a code generator) |
 | External contributors | 0 |
 | Public benchmark release | No |

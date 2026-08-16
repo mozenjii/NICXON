@@ -64,6 +64,8 @@ OpenFisca / Catala / LegalRuleML / other adapters
 - [x] Verification engine — 16 checks with stable `RWxxxx` diagnostic codes.
 - [x] Boundary case generator.
 - [x] Mutation harness — **17/17 planted faults caught**.
+- [x] Date transition generator.
+- [x] Semantic diff and amendment impact analysis.
 - [x] Golden corpus: 13 SNAP rules hand-encoded from 7 CFR 273.9.
 - [x] CLI.
 
@@ -73,7 +75,6 @@ OpenFisca / Catala / LegalRuleML / other adapters
 - [ ] LLM compiler — deliberately last, until the deterministic core is proven.
 - [ ] Human review UI.
 - [ ] OpenFisca adapter.
-- [ ] Amendment/version diff engine.
 - [ ] Public benchmark.
 
 See [`docs/01_PROJECT_STATUS.md`](docs/01_PROJECT_STATUS.md) for the detailed state.
@@ -111,6 +112,31 @@ A missing input never becomes a denial — it evaluates to `UNKNOWN` and propaga
 ruleweaver boundaries examples/snap/rules.json examples/snap/scenarios/baseline.json \
   --observe var.household.is_income_eligible
 ```
+
+### Amendment impact
+
+Ask what a change to the law actually does to real households:
+
+```bash
+ruleweaver diff examples/snap/rules.json \
+                examples/snap/amendments/earned-deduction-25pct.json \
+                --scenario examples/snap/scenarios/baseline.json \
+                --observe var.household.net_monthly_income
+```
+
+```text
+1 semantic, 0 cosmetic
+  [SEMANTIC] parameter_value_changed param.snap.earned_income_deduction_rate: 0.20 -> 0.25
+
+LEGISLATIVE CHANGE IMPACT
+  directly affected rules     1
+  transitively affected rules 5
+  scenarios with a changed outcome 1
+    baseline: net_monthly_income  594.0000 -> 481.5000
+```
+
+A reworded citation is reported as cosmetic and stops there. Only a change in meaning
+propagates into impact analysis.
 
 ## Read this documentation in order
 
