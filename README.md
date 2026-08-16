@@ -68,13 +68,15 @@ OpenFisca / Catala / LegalRuleML / other adapters
 - [x] Semantic diff and amendment impact analysis.
 - [x] Golden corpus: 15 SNAP rules hand-encoded from 7 CFR 273.9 and 273.10,
       covering income eligibility and benefit calculation.
+- [x] Provider-neutral model interface (Claude + GPT) with prompt-injection guard.
+- [x] Adversarial review gate — seeded errors, catch rate, rubber-stamp detection.
 - [x] CLI.
 
 ### Not built yet
 
 - [ ] Source ingestion pipeline.
-- [ ] LLM compiler — deliberately last, until the deterministic core is proven.
-- [ ] Human review UI.
+- [ ] LLM extraction passes — the interface exists; nothing calls a model yet.
+- [ ] Human review UI (the gate's logic exists; the interface does not).
 - [ ] OpenFisca adapter.
 - [ ] Public benchmark.
 
@@ -85,7 +87,7 @@ See [`docs/01_PROJECT_STATUS.md`](docs/01_PROJECT_STATUS.md) for the detailed st
 ```bash
 python -m venv .venv
 .venv/bin/pip install -e ".[dev]"        # Windows: .venv/Scripts/pip
-pytest                                    # 94 tests
+pytest                                    # 145 tests
 ```
 
 Check a rule package, then run a household through it:

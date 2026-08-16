@@ -126,15 +126,15 @@ Checked items are built and covered by tests. Everything unchecked is genuinely 
 - [ ] cross-reference linking.
 - [ ] ambiguity proposal.
 - [ ] prompt/version registry.
-- [ ] provider-neutral model interface.
+- [x] provider-neutral model interface.
 
 ### Review
 
-- [ ] review decision model.
-- [ ] approval workflow.
+- [x] review decision model.
+- [x] approval workflow.
 - [ ] source/rule side-by-side UI.
 - [ ] edit/reject/approve UX.
-- [ ] audit log.
+- [x] audit log.
 
 ### Adapters
 
@@ -190,13 +190,15 @@ Keep these up to date once implementation starts:
 | IR schema version | 0.1.0 |
 | Golden policy corpora | 1 (SNAP, 15 rules from 7 CFR 273.9 and 273.10) |
 | Deterministic rule features implemented | 12 expression nodes, exceptions, overrides, 4-state values, trace |
-| Tests | 94 passing (`pytest`) |
+| Tests | 145 passing (`pytest`) |
 | Mutation score | **22/22 caught (100%)** |
 | Validators implemented | 16, stable `RWxxxx` codes |
 | Test generators | boundary + date transition |
 | Amendment impact | semantic diff + dependency closure + outcome comparison |
 | CLI | `validate`, `evaluate`, `boundaries`, `diff`, `schema` |
-| LLM compiler passes implemented | 0 — deliberately, until the core is proven |
+| Model interface | Provider-neutral; Claude + GPT adapters; injection guard |
+| Review gate | Append-only log, derived status, seeded-error catch rate |
+| LLM compiler passes implemented | 0 — the interface exists; no extraction pass yet |
 | Approved adapter targets | 0 built, 1 planned (OpenFisca, as a code generator) |
 | External contributors | 0 |
 | Public benchmark release | No |
