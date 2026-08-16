@@ -1,0 +1,2522 @@
+{
+  "$defs": {
+    "Aggregate": {
+      "additionalProperties": false,
+      "description": "Aggregation over the members of a group entity.\n\nRequired by household income (a sum over members) and by\nhousehold_has_elderly_or_disabled_member (an existential over members).",
+      "properties": {
+        "op": {
+          "enum": [
+            "sum_over",
+            "count_over",
+            "min_over",
+            "max_over",
+            "any_over",
+            "all_over"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "entity": {
+          "title": "Entity",
+          "type": "string"
+        },
+        "scope": {
+          "discriminator": {
+            "mapping": {
+              "add": "#/$defs/Arith",
+              "all": "#/$defs/BoolOp",
+              "all_over": "#/$defs/Aggregate",
+              "any": "#/$defs/BoolOp",
+              "any_over": "#/$defs/Aggregate",
+              "clamp": "#/$defs/Clamp",
+              "convert_period": "#/$defs/ConvertPeriod",
+              "count_over": "#/$defs/Aggregate",
+              "divide": "#/$defs/Arith",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "literal": "#/$defs/Lit",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "max": "#/$defs/Arith",
+              "max_over": "#/$defs/Aggregate",
+              "min": "#/$defs/Arith",
+              "min_over": "#/$defs/Aggregate",
+              "multiply": "#/$defs/Arith",
+              "neq": "#/$defs/Compare",
+              "not": "#/$defs/Not",
+              "parameter": "#/$defs/Param",
+              "piecewise": "#/$defs/Piecewise",
+              "ref": "#/$defs/Ref",
+              "round": "#/$defs/Round",
+              "subtract": "#/$defs/Arith",
+              "sum_over": "#/$defs/Aggregate"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Lit"
+            },
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "$ref": "#/$defs/Param"
+            },
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/BoolOp"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Arith"
+            },
+            {
+              "$ref": "#/$defs/Round"
+            },
+            {
+              "$ref": "#/$defs/ConvertPeriod"
+            },
+            {
+              "$ref": "#/$defs/Clamp"
+            },
+            {
+              "$ref": "#/$defs/Piecewise"
+            },
+            {
+              "$ref": "#/$defs/Aggregate"
+            }
+          ],
+          "title": "Scope"
+        },
+        "value": {
+          "discriminator": {
+            "mapping": {
+              "add": "#/$defs/Arith",
+              "all": "#/$defs/BoolOp",
+              "all_over": "#/$defs/Aggregate",
+              "any": "#/$defs/BoolOp",
+              "any_over": "#/$defs/Aggregate",
+              "clamp": "#/$defs/Clamp",
+              "convert_period": "#/$defs/ConvertPeriod",
+              "count_over": "#/$defs/Aggregate",
+              "divide": "#/$defs/Arith",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "literal": "#/$defs/Lit",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "max": "#/$defs/Arith",
+              "max_over": "#/$defs/Aggregate",
+              "min": "#/$defs/Arith",
+              "min_over": "#/$defs/Aggregate",
+              "multiply": "#/$defs/Arith",
+              "neq": "#/$defs/Compare",
+              "not": "#/$defs/Not",
+              "parameter": "#/$defs/Param",
+              "piecewise": "#/$defs/Piecewise",
+              "ref": "#/$defs/Ref",
+              "round": "#/$defs/Round",
+              "subtract": "#/$defs/Arith",
+              "sum_over": "#/$defs/Aggregate"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Lit"
+            },
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "$ref": "#/$defs/Param"
+            },
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/BoolOp"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Arith"
+            },
+            {
+              "$ref": "#/$defs/Round"
+            },
+            {
+              "$ref": "#/$defs/ConvertPeriod"
+            },
+            {
+              "$ref": "#/$defs/Clamp"
+            },
+            {
+              "$ref": "#/$defs/Piecewise"
+            },
+            {
+              "$ref": "#/$defs/Aggregate"
+            }
+          ],
+          "title": "Value"
+        },
+        "where": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "add": "#/$defs/Arith",
+                  "all": "#/$defs/BoolOp",
+                  "all_over": "#/$defs/Aggregate",
+                  "any": "#/$defs/BoolOp",
+                  "any_over": "#/$defs/Aggregate",
+                  "clamp": "#/$defs/Clamp",
+                  "convert_period": "#/$defs/ConvertPeriod",
+                  "count_over": "#/$defs/Aggregate",
+                  "divide": "#/$defs/Arith",
+                  "eq": "#/$defs/Compare",
+                  "gt": "#/$defs/Compare",
+                  "gte": "#/$defs/Compare",
+                  "literal": "#/$defs/Lit",
+                  "lt": "#/$defs/Compare",
+                  "lte": "#/$defs/Compare",
+                  "max": "#/$defs/Arith",
+                  "max_over": "#/$defs/Aggregate",
+                  "min": "#/$defs/Arith",
+                  "min_over": "#/$defs/Aggregate",
+                  "multiply": "#/$defs/Arith",
+                  "neq": "#/$defs/Compare",
+                  "not": "#/$defs/Not",
+                  "parameter": "#/$defs/Param",
+                  "piecewise": "#/$defs/Piecewise",
+                  "ref": "#/$defs/Ref",
+                  "round": "#/$defs/Round",
+                  "subtract": "#/$defs/Arith",
+                  "sum_over": "#/$defs/Aggregate"
+                },
+                "propertyName": "op"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Lit"
+                },
+                {
+                  "$ref": "#/$defs/Ref"
+                },
+                {
+                  "$ref": "#/$defs/Param"
+                },
+                {
+                  "$ref": "#/$defs/Compare"
+                },
+                {
+                  "$ref": "#/$defs/BoolOp"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Arith"
+                },
+                {
+                  "$ref": "#/$defs/Round"
+                },
+                {
+                  "$ref": "#/$defs/ConvertPeriod"
+                },
+                {
+                  "$ref": "#/$defs/Clamp"
+                },
+                {
+                  "$ref": "#/$defs/Piecewise"
+                },
+                {
+                  "$ref": "#/$defs/Aggregate"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Where"
+        }
+      },
+      "required": [
+        "op",
+        "entity",
+        "scope",
+        "value"
+      ],
+      "title": "Aggregate",
+      "type": "object"
+    },
+    "Ambiguity": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "blocking": {
+          "title": "Blocking",
+          "type": "boolean"
+        },
+        "affects": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Affects",
+          "type": "array"
+        },
+        "question": {
+          "title": "Question",
+          "type": "string"
+        },
+        "interpretations": {
+          "items": {
+            "$ref": "#/$defs/Interpretations"
+          },
+          "title": "Interpretations",
+          "type": "array"
+        },
+        "resolution": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resolution"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/SourceSpan"
+          },
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "blocking",
+        "question"
+      ],
+      "title": "Ambiguity",
+      "type": "object"
+    },
+    "Arith": {
+      "additionalProperties": false,
+      "description": "`subtract` and `divide` are left-folds over args, so `a - b - c` stays one node.",
+      "properties": {
+        "op": {
+          "enum": [
+            "add",
+            "subtract",
+            "multiply",
+            "divide",
+            "min",
+            "max"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "args": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "add": "#/$defs/Arith",
+                "all": "#/$defs/BoolOp",
+                "all_over": "#/$defs/Aggregate",
+                "any": "#/$defs/BoolOp",
+                "any_over": "#/$defs/Aggregate",
+                "clamp": "#/$defs/Clamp",
+                "convert_period": "#/$defs/ConvertPeriod",
+                "count_over": "#/$defs/Aggregate",
+                "divide": "#/$defs/Arith",
+                "eq": "#/$defs/Compare",
+                "gt": "#/$defs/Compare",
+                "gte": "#/$defs/Compare",
+                "literal": "#/$defs/Lit",
+                "lt": "#/$defs/Compare",
+                "lte": "#/$defs/Compare",
+                "max": "#/$defs/Arith",
+                "max_over": "#/$defs/Aggregate",
+                "min": "#/$defs/Arith",
+                "min_over": "#/$defs/Aggregate",
+                "multiply": "#/$defs/Arith",
+                "neq": "#/$defs/Compare",
+                "not": "#/$defs/Not",
+                "parameter": "#/$defs/Param",
+                "piecewise": "#/$defs/Piecewise",
+                "ref": "#/$defs/Ref",
+                "round": "#/$defs/Round",
+                "subtract": "#/$defs/Arith",
+                "sum_over": "#/$defs/Aggregate"
+              },
+              "propertyName": "op"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Lit"
+              },
+              {
+                "$ref": "#/$defs/Ref"
+              },
+              {
+                "$ref": "#/$defs/Param"
+              },
+              {
+                "$ref": "#/$defs/Compare"
+              },
+              {
+                "$ref": "#/$defs/BoolOp"
+              },
+              {
+                "$ref": "#/$defs/Not"
+              },
+              {
+                "$ref": "#/$defs/Arith"
+              },
+              {
+                "$ref": "#/$defs/Round"
+              },
+              {
+                "$ref": "#/$defs/ConvertPeriod"
+              },
+              {
+                "$ref": "#/$defs/Clamp"
+              },
+              {
+                "$ref": "#/$defs/Piecewise"
+              },
+              {
+                "$ref": "#/$defs/Aggregate"
+              }
+            ]
+          },
+          "title": "Args",
+          "type": "array"
+        }
+      },
+      "required": [
+        "op",
+        "args"
+      ],
+      "title": "Arith",
+      "type": "object"
+    },
+    "Assign": {
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "title": "Target",
+          "type": "string"
+        },
+        "value": {
+          "discriminator": {
+            "mapping": {
+              "add": "#/$defs/Arith",
+              "all": "#/$defs/BoolOp",
+              "all_over": "#/$defs/Aggregate",
+              "any": "#/$defs/BoolOp",
+              "any_over": "#/$defs/Aggregate",
+              "clamp": "#/$defs/Clamp",
+              "convert_period": "#/$defs/ConvertPeriod",
+              "count_over": "#/$defs/Aggregate",
+              "divide": "#/$defs/Arith",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "literal": "#/$defs/Lit",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "max": "#/$defs/Arith",
+              "max_over": "#/$defs/Aggregate",
+              "min": "#/$defs/Arith",
+              "min_over": "#/$defs/Aggregate",
+              "multiply": "#/$defs/Arith",
+              "neq": "#/$defs/Compare",
+              "not": "#/$defs/Not",
+              "parameter": "#/$defs/Param",
+              "piecewise": "#/$defs/Piecewise",
+              "ref": "#/$defs/Ref",
+              "round": "#/$defs/Round",
+              "subtract": "#/$defs/Arith",
+              "sum_over": "#/$defs/Aggregate"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Lit"
+            },
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "$ref": "#/$defs/Param"
+            },
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/BoolOp"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Arith"
+            },
+            {
+              "$ref": "#/$defs/Round"
+            },
+            {
+              "$ref": "#/$defs/ConvertPeriod"
+            },
+            {
+              "$ref": "#/$defs/Clamp"
+            },
+            {
+              "$ref": "#/$defs/Piecewise"
+            },
+            {
+              "$ref": "#/$defs/Aggregate"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "target",
+        "value"
+      ],
+      "title": "Assign",
+      "type": "object"
+    },
+    "BoolOp": {
+      "additionalProperties": false,
+      "description": "Kleene conjunction/disjunction. Arity is n, not 2, so encoded law keeps the\nshape of the clause it came from.",
+      "properties": {
+        "op": {
+          "enum": [
+            "all",
+            "any"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "args": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "add": "#/$defs/Arith",
+                "all": "#/$defs/BoolOp",
+                "all_over": "#/$defs/Aggregate",
+                "any": "#/$defs/BoolOp",
+                "any_over": "#/$defs/Aggregate",
+                "clamp": "#/$defs/Clamp",
+                "convert_period": "#/$defs/ConvertPeriod",
+                "count_over": "#/$defs/Aggregate",
+                "divide": "#/$defs/Arith",
+                "eq": "#/$defs/Compare",
+                "gt": "#/$defs/Compare",
+                "gte": "#/$defs/Compare",
+                "literal": "#/$defs/Lit",
+                "lt": "#/$defs/Compare",
+                "lte": "#/$defs/Compare",
+                "max": "#/$defs/Arith",
+                "max_over": "#/$defs/Aggregate",
+                "min": "#/$defs/Arith",
+                "min_over": "#/$defs/Aggregate",
+                "multiply": "#/$defs/Arith",
+                "neq": "#/$defs/Compare",
+                "not": "#/$defs/Not",
+                "parameter": "#/$defs/Param",
+                "piecewise": "#/$defs/Piecewise",
+                "ref": "#/$defs/Ref",
+                "round": "#/$defs/Round",
+                "subtract": "#/$defs/Arith",
+                "sum_over": "#/$defs/Aggregate"
+              },
+              "propertyName": "op"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Lit"
+              },
+              {
+                "$ref": "#/$defs/Ref"
+              },
+              {
+                "$ref": "#/$defs/Param"
+              },
+              {
+                "$ref": "#/$defs/Compare"
+              },
+              {
+                "$ref": "#/$defs/BoolOp"
+              },
+              {
+                "$ref": "#/$defs/Not"
+              },
+              {
+                "$ref": "#/$defs/Arith"
+              },
+              {
+                "$ref": "#/$defs/Round"
+              },
+              {
+                "$ref": "#/$defs/ConvertPeriod"
+              },
+              {
+                "$ref": "#/$defs/Clamp"
+              },
+              {
+                "$ref": "#/$defs/Piecewise"
+              },
+              {
+                "$ref": "#/$defs/Aggregate"
+              }
+            ]
+          },
+          "title": "Args",
+          "type": "array"
+        }
+      },
+      "required": [
+        "op",
+        "args"
+      ],
+      "title": "BoolOp",
+      "type": "object"
+    },
+    "Case": {
+      "additionalProperties": false,
+      "properties": {
+        "when": {
+          "discriminator": {
+            "mapping": {
+              "add": "#/$defs/Arith",
+              "all": "#/$defs/BoolOp",
+              "all_over": "#/$defs/Aggregate",
+              "any": "#/$defs/BoolOp",
+              "any_over": "#/$defs/Aggregate",
+              "clamp": "#/$defs/Clamp",
+              "convert_period": "#/$defs/ConvertPeriod",
+              "count_over": "#/$defs/Aggregate",
+              "divide": "#/$defs/Arith",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "literal": "#/$defs/Lit",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "max": "#/$defs/Arith",
+              "max_over": "#/$defs/Aggregate",
+              "min": "#/$defs/Arith",
+              "min_over": "#/$defs/Aggregate",
+              "multiply": "#/$defs/Arith",
+              "neq": "#/$defs/Compare",
+              "not": "#/$defs/Not",
+              "parameter": "#/$defs/Param",
+              "piecewise": "#/$defs/Piecewise",
+              "ref": "#/$defs/Ref",
+              "round": "#/$defs/Round",
+              "subtract": "#/$defs/Arith",
+              "sum_over": "#/$defs/Aggregate"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Lit"
+            },
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "$ref": "#/$defs/Param"
+            },
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/BoolOp"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Arith"
+            },
+            {
+              "$ref": "#/$defs/Round"
+            },
+            {
+              "$ref": "#/$defs/ConvertPeriod"
+            },
+            {
+              "$ref": "#/$defs/Clamp"
+            },
+            {
+              "$ref": "#/$defs/Piecewise"
+            },
+            {
+              "$ref": "#/$defs/Aggregate"
+            }
+          ],
+          "title": "When"
+        },
+        "then": {
+          "discriminator": {
+            "mapping": {
+              "add": "#/$defs/Arith",
+              "all": "#/$defs/BoolOp",
+              "all_over": "#/$defs/Aggregate",
+              "any": "#/$defs/BoolOp",
+              "any_over": "#/$defs/Aggregate",
+              "clamp": "#/$defs/Clamp",
+              "convert_period": "#/$defs/ConvertPeriod",
+              "count_over": "#/$defs/Aggregate",
+              "divide": "#/$defs/Arith",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "literal": "#/$defs/Lit",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "max": "#/$defs/Arith",
+              "max_over": "#/$defs/Aggregate",
+              "min": "#/$defs/Arith",
+              "min_over": "#/$defs/Aggregate",
+              "multiply": "#/$defs/Arith",
+              "neq": "#/$defs/Compare",
+              "not": "#/$defs/Not",
+              "parameter": "#/$defs/Param",
+              "piecewise": "#/$defs/Piecewise",
+              "ref": "#/$defs/Ref",
+              "round": "#/$defs/Round",
+              "subtract": "#/$defs/Arith",
+              "sum_over": "#/$defs/Aggregate"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Lit"
+            },
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "$ref": "#/$defs/Param"
+            },
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/BoolOp"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Arith"
+            },
+            {
+              "$ref": "#/$defs/Round"
+            },
+            {
+              "$ref": "#/$defs/ConvertPeriod"
+            },
+            {
+              "$ref": "#/$defs/Clamp"
+            },
+            {
+              "$ref": "#/$defs/Piecewise"
+            },
+            {
+              "$ref": "#/$defs/Aggregate"
+            }
+          ],
+          "title": "Then"
+        }
+      },
+      "required": [
+        "when",
+        "then"
+      ],
+      "title": "Case",
+      "type": "object"
+    },
+    "Clamp": {
+      "additionalProperties": false,
+      "description": "Bound a value. At least one of min/max is required.\n\nUsed on a parameter's lookup index for \"for household sizes greater than six, the\nstandard deduction shall be equal to the standard deduction for a six-person\nhousehold\" (273.9(d)(1)(i)).",
+      "properties": {
+        "op": {
+          "const": "clamp",
+          "title": "Op",
+          "type": "string"
+        },
+        "arg": {
+          "discriminator": {
+            "mapping": {
+              "add": "#/$defs/Arith",
+              "all": "#/$defs/BoolOp",
+              "all_over": "#/$defs/Aggregate",
+              "any": "#/$defs/BoolOp",
+              "any_over": "#/$defs/Aggregate",
+              "clamp": "#/$defs/Clamp",
+              "convert_period": "#/$defs/ConvertPeriod",
+              "count_over": "#/$defs/Aggregate",
+              "divide": "#/$defs/Arith",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "literal": "#/$defs/Lit",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "max": "#/$defs/Arith",
+              "max_over": "#/$defs/Aggregate",
+              "min": "#/$defs/Arith",
+              "min_over": "#/$defs/Aggregate",
+              "multiply": "#/$defs/Arith",
+              "neq": "#/$defs/Compare",
+              "not": "#/$defs/Not",
+              "parameter": "#/$defs/Param",
+              "piecewise": "#/$defs/Piecewise",
+              "ref": "#/$defs/Ref",
+              "round": "#/$defs/Round",
+              "subtract": "#/$defs/Arith",
+              "sum_over": "#/$defs/Aggregate"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Lit"
+            },
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "$ref": "#/$defs/Param"
+            },
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/BoolOp"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Arith"
+            },
+            {
+              "$ref": "#/$defs/Round"
+            },
+            {
+              "$ref": "#/$defs/ConvertPeriod"
+            },
+            {
+              "$ref": "#/$defs/Clamp"
+            },
+            {
+              "$ref": "#/$defs/Piecewise"
+            },
+            {
+              "$ref": "#/$defs/Aggregate"
+            }
+          ],
+          "title": "Arg"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "add": "#/$defs/Arith",
+                  "all": "#/$defs/BoolOp",
+                  "all_over": "#/$defs/Aggregate",
+                  "any": "#/$defs/BoolOp",
+                  "any_over": "#/$defs/Aggregate",
+                  "clamp": "#/$defs/Clamp",
+                  "convert_period": "#/$defs/ConvertPeriod",
+                  "count_over": "#/$defs/Aggregate",
+                  "divide": "#/$defs/Arith",
+                  "eq": "#/$defs/Compare",
+                  "gt": "#/$defs/Compare",
+                  "gte": "#/$defs/Compare",
+                  "literal": "#/$defs/Lit",
+                  "lt": "#/$defs/Compare",
+                  "lte": "#/$defs/Compare",
+                  "max": "#/$defs/Arith",
+                  "max_over": "#/$defs/Aggregate",
+                  "min": "#/$defs/Arith",
+                  "min_over": "#/$defs/Aggregate",
+                  "multiply": "#/$defs/Arith",
+                  "neq": "#/$defs/Compare",
+                  "not": "#/$defs/Not",
+                  "parameter": "#/$defs/Param",
+                  "piecewise": "#/$defs/Piecewise",
+                  "ref": "#/$defs/Ref",
+                  "round": "#/$defs/Round",
+                  "subtract": "#/$defs/Arith",
+                  "sum_over": "#/$defs/Aggregate"
+                },
+                "propertyName": "op"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Lit"
+                },
+                {
+                  "$ref": "#/$defs/Ref"
+                },
+                {
+                  "$ref": "#/$defs/Param"
+                },
+                {
+                  "$ref": "#/$defs/Compare"
+                },
+                {
+                  "$ref": "#/$defs/BoolOp"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Arith"
+                },
+                {
+                  "$ref": "#/$defs/Round"
+                },
+                {
+                  "$ref": "#/$defs/ConvertPeriod"
+                },
+                {
+                  "$ref": "#/$defs/Clamp"
+                },
+                {
+                  "$ref": "#/$defs/Piecewise"
+                },
+                {
+                  "$ref": "#/$defs/Aggregate"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "add": "#/$defs/Arith",
+                  "all": "#/$defs/BoolOp",
+                  "all_over": "#/$defs/Aggregate",
+                  "any": "#/$defs/BoolOp",
+                  "any_over": "#/$defs/Aggregate",
+                  "clamp": "#/$defs/Clamp",
+                  "convert_period": "#/$defs/ConvertPeriod",
+                  "count_over": "#/$defs/Aggregate",
+                  "divide": "#/$defs/Arith",
+                  "eq": "#/$defs/Compare",
+                  "gt": "#/$defs/Compare",
+                  "gte": "#/$defs/Compare",
+                  "literal": "#/$defs/Lit",
+                  "lt": "#/$defs/Compare",
+                  "lte": "#/$defs/Compare",
+                  "max": "#/$defs/Arith",
+                  "max_over": "#/$defs/Aggregate",
+                  "min": "#/$defs/Arith",
+                  "min_over": "#/$defs/Aggregate",
+                  "multiply": "#/$defs/Arith",
+                  "neq": "#/$defs/Compare",
+                  "not": "#/$defs/Not",
+                  "parameter": "#/$defs/Param",
+                  "piecewise": "#/$defs/Piecewise",
+                  "ref": "#/$defs/Ref",
+                  "round": "#/$defs/Round",
+                  "subtract": "#/$defs/Arith",
+                  "sum_over": "#/$defs/Aggregate"
+                },
+                "propertyName": "op"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/Lit"
+                },
+                {
+                  "$ref": "#/$defs/Ref"
+                },
+                {
+                  "$ref": "#/$defs/Param"
+                },
+                {
+                  "$ref": "#/$defs/Compare"
+                },
+                {
+                  "$ref": "#/$defs/BoolOp"
+                },
+                {
+                  "$ref": "#/$defs/Not"
+                },
+                {
+                  "$ref": "#/$defs/Arith"
+                },
+                {
+                  "$ref": "#/$defs/Round"
+                },
+                {
+                  "$ref": "#/$defs/ConvertPeriod"
+                },
+                {
+                  "$ref": "#/$defs/Clamp"
+                },
+                {
+                  "$ref": "#/$defs/Piecewise"
+                },
+                {
+                  "$ref": "#/$defs/Aggregate"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        }
+      },
+      "required": [
+        "op",
+        "arg"
+      ],
+      "title": "Clamp",
+      "type": "object"
+    },
+    "Compare": {
+      "additionalProperties": false,
+      "properties": {
+        "op": {
+          "enum": [
+            "lt",
+            "lte",
+            "gt",
+            "gte",
+            "eq",
+            "neq"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "left": {
+          "discriminator": {
+            "mapping": {
+              "add": "#/$defs/Arith",
+              "all": "#/$defs/BoolOp",
+              "all_over": "#/$defs/Aggregate",
+              "any": "#/$defs/BoolOp",
+              "any_over": "#/$defs/Aggregate",
+              "clamp": "#/$defs/Clamp",
+              "convert_period": "#/$defs/ConvertPeriod",
+              "count_over": "#/$defs/Aggregate",
+              "divide": "#/$defs/Arith",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "literal": "#/$defs/Lit",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "max": "#/$defs/Arith",
+              "max_over": "#/$defs/Aggregate",
+              "min": "#/$defs/Arith",
+              "min_over": "#/$defs/Aggregate",
+              "multiply": "#/$defs/Arith",
+              "neq": "#/$defs/Compare",
+              "not": "#/$defs/Not",
+              "parameter": "#/$defs/Param",
+              "piecewise": "#/$defs/Piecewise",
+              "ref": "#/$defs/Ref",
+              "round": "#/$defs/Round",
+              "subtract": "#/$defs/Arith",
+              "sum_over": "#/$defs/Aggregate"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Lit"
+            },
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "$ref": "#/$defs/Param"
+            },
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/BoolOp"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Arith"
+            },
+            {
+              "$ref": "#/$defs/Round"
+            },
+            {
+              "$ref": "#/$defs/ConvertPeriod"
+            },
+            {
+              "$ref": "#/$defs/Clamp"
+            },
+            {
+              "$ref": "#/$defs/Piecewise"
+            },
+            {
+              "$ref": "#/$defs/Aggregate"
+            }
+          ],
+          "title": "Left"
+        },
+        "right": {
+          "discriminator": {
+            "mapping": {
+              "add": "#/$defs/Arith",
+              "all": "#/$defs/BoolOp",
+              "all_over": "#/$defs/Aggregate",
+              "any": "#/$defs/BoolOp",
+              "any_over": "#/$defs/Aggregate",
+              "clamp": "#/$defs/Clamp",
+              "convert_period": "#/$defs/ConvertPeriod",
+              "count_over": "#/$defs/Aggregate",
+              "divide": "#/$defs/Arith",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "literal": "#/$defs/Lit",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "max": "#/$defs/Arith",
+              "max_over": "#/$defs/Aggregate",
+              "min": "#/$defs/Arith",
+              "min_over": "#/$defs/Aggregate",
+              "multiply": "#/$defs/Arith",
+              "neq": "#/$defs/Compare",
+              "not": "#/$defs/Not",
+              "parameter": "#/$defs/Param",
+              "piecewise": "#/$defs/Piecewise",
+              "ref": "#/$defs/Ref",
+              "round": "#/$defs/Round",
+              "subtract": "#/$defs/Arith",
+              "sum_over": "#/$defs/Aggregate"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Lit"
+            },
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "$ref": "#/$defs/Param"
+            },
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/BoolOp"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Arith"
+            },
+            {
+              "$ref": "#/$defs/Round"
+            },
+            {
+              "$ref": "#/$defs/ConvertPeriod"
+            },
+            {
+              "$ref": "#/$defs/Clamp"
+            },
+            {
+              "$ref": "#/$defs/Piecewise"
+            },
+            {
+              "$ref": "#/$defs/Aggregate"
+            }
+          ],
+          "title": "Right"
+        }
+      },
+      "required": [
+        "op",
+        "left",
+        "right"
+      ],
+      "title": "Compare",
+      "type": "object"
+    },
+    "ConvertPeriod": {
+      "additionalProperties": false,
+      "description": "Period conversion is never implicit. Required by \"divided by 12\" at 273.9(a)(3).",
+      "properties": {
+        "op": {
+          "const": "convert_period",
+          "title": "Op",
+          "type": "string"
+        },
+        "arg": {
+          "discriminator": {
+            "mapping": {
+              "add": "#/$defs/Arith",
+              "all": "#/$defs/BoolOp",
+              "all_over": "#/$defs/Aggregate",
+              "any": "#/$defs/BoolOp",
+              "any_over": "#/$defs/Aggregate",
+              "clamp": "#/$defs/Clamp",
+              "convert_period": "#/$defs/ConvertPeriod",
+              "count_over": "#/$defs/Aggregate",
+              "divide": "#/$defs/Arith",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "literal": "#/$defs/Lit",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "max": "#/$defs/Arith",
+              "max_over": "#/$defs/Aggregate",
+              "min": "#/$defs/Arith",
+              "min_over": "#/$defs/Aggregate",
+              "multiply": "#/$defs/Arith",
+              "neq": "#/$defs/Compare",
+              "not": "#/$defs/Not",
+              "parameter": "#/$defs/Param",
+              "piecewise": "#/$defs/Piecewise",
+              "ref": "#/$defs/Ref",
+              "round": "#/$defs/Round",
+              "subtract": "#/$defs/Arith",
+              "sum_over": "#/$defs/Aggregate"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Lit"
+            },
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "$ref": "#/$defs/Param"
+            },
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/BoolOp"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Arith"
+            },
+            {
+              "$ref": "#/$defs/Round"
+            },
+            {
+              "$ref": "#/$defs/ConvertPeriod"
+            },
+            {
+              "$ref": "#/$defs/Clamp"
+            },
+            {
+              "$ref": "#/$defs/Piecewise"
+            },
+            {
+              "$ref": "#/$defs/Aggregate"
+            }
+          ],
+          "title": "Arg"
+        },
+        "from": {
+          "enum": [
+            "day",
+            "month",
+            "year"
+          ],
+          "title": "From",
+          "type": "string"
+        },
+        "to": {
+          "enum": [
+            "day",
+            "month",
+            "year"
+          ],
+          "title": "To",
+          "type": "string"
+        },
+        "method": {
+          "default": "divide",
+          "enum": [
+            "divide",
+            "prorate_days"
+          ],
+          "title": "Method",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "arg",
+        "from",
+        "to"
+      ],
+      "title": "ConvertPeriod",
+      "type": "object"
+    },
+    "Entity": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "kind": {
+          "default": "group",
+          "enum": [
+            "group",
+            "member"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "member_of": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Member Of"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "title": "Entity",
+      "type": "object"
+    },
+    "Exception_": {
+      "additionalProperties": false,
+      "description": "A rule-local exception.\n\n`disable_base_rule` suppresses the base rule. `substitute` replaces its effect \u2014\nthe dominant legal form, as in \"except that for a household with an elderly member\nthe limit is X\". Encoding substitution as disable-plus-shadow-rule would duplicate\nthe condition and sever source correspondence.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "when": {
+          "discriminator": {
+            "mapping": {
+              "add": "#/$defs/Arith",
+              "all": "#/$defs/BoolOp",
+              "all_over": "#/$defs/Aggregate",
+              "any": "#/$defs/BoolOp",
+              "any_over": "#/$defs/Aggregate",
+              "clamp": "#/$defs/Clamp",
+              "convert_period": "#/$defs/ConvertPeriod",
+              "count_over": "#/$defs/Aggregate",
+              "divide": "#/$defs/Arith",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "literal": "#/$defs/Lit",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "max": "#/$defs/Arith",
+              "max_over": "#/$defs/Aggregate",
+              "min": "#/$defs/Arith",
+              "min_over": "#/$defs/Aggregate",
+              "multiply": "#/$defs/Arith",
+              "neq": "#/$defs/Compare",
+              "not": "#/$defs/Not",
+              "parameter": "#/$defs/Param",
+              "piecewise": "#/$defs/Piecewise",
+              "ref": "#/$defs/Ref",
+              "round": "#/$defs/Round",
+              "subtract": "#/$defs/Arith",
+              "sum_over": "#/$defs/Aggregate"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Lit"
+            },
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "$ref": "#/$defs/Param"
+            },
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/BoolOp"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Arith"
+            },
+            {
+              "$ref": "#/$defs/Round"
+            },
+            {
+              "$ref": "#/$defs/ConvertPeriod"
+            },
+            {
+              "$ref": "#/$defs/Clamp"
+            },
+            {
+              "$ref": "#/$defs/Piecewise"
+            },
+            {
+              "$ref": "#/$defs/Aggregate"
+            }
+          ],
+          "title": "When"
+        },
+        "effect": {
+          "enum": [
+            "disable_base_rule",
+            "substitute"
+          ],
+          "title": "Effect",
+          "type": "string"
+        },
+        "substitute": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Then"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "priority": {
+          "title": "Priority",
+          "type": "integer"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/SourceSpan"
+          },
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "when",
+        "effect",
+        "priority"
+      ],
+      "title": "Exception_",
+      "type": "object"
+    },
+    "Interpretation": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "default": "needs_review",
+          "enum": [
+            "proposed",
+            "needs_review",
+            "approved",
+            "rejected",
+            "ambiguous",
+            "human_judgment_required"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "model_confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Confidence"
+        }
+      },
+      "title": "Interpretation",
+      "type": "object"
+    },
+    "Interpretations": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "description"
+      ],
+      "title": "Interpretations",
+      "type": "object"
+    },
+    "Lit": {
+      "additionalProperties": false,
+      "description": "A constant. Numbers arrive as Decimal, never binary float.",
+      "properties": {
+        "op": {
+          "const": "literal",
+          "title": "Op",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "op",
+        "value"
+      ],
+      "title": "Lit",
+      "type": "object"
+    },
+    "Not": {
+      "additionalProperties": false,
+      "properties": {
+        "op": {
+          "const": "not",
+          "title": "Op",
+          "type": "string"
+        },
+        "arg": {
+          "discriminator": {
+            "mapping": {
+              "add": "#/$defs/Arith",
+              "all": "#/$defs/BoolOp",
+              "all_over": "#/$defs/Aggregate",
+              "any": "#/$defs/BoolOp",
+              "any_over": "#/$defs/Aggregate",
+              "clamp": "#/$defs/Clamp",
+              "convert_period": "#/$defs/ConvertPeriod",
+              "count_over": "#/$defs/Aggregate",
+              "divide": "#/$defs/Arith",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "literal": "#/$defs/Lit",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "max": "#/$defs/Arith",
+              "max_over": "#/$defs/Aggregate",
+              "min": "#/$defs/Arith",
+              "min_over": "#/$defs/Aggregate",
+              "multiply": "#/$defs/Arith",
+              "neq": "#/$defs/Compare",
+              "not": "#/$defs/Not",
+              "parameter": "#/$defs/Param",
+              "piecewise": "#/$defs/Piecewise",
+              "ref": "#/$defs/Ref",
+              "round": "#/$defs/Round",
+              "subtract": "#/$defs/Arith",
+              "sum_over": "#/$defs/Aggregate"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Lit"
+            },
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "$ref": "#/$defs/Param"
+            },
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/BoolOp"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Arith"
+            },
+            {
+              "$ref": "#/$defs/Round"
+            },
+            {
+              "$ref": "#/$defs/ConvertPeriod"
+            },
+            {
+              "$ref": "#/$defs/Clamp"
+            },
+            {
+              "$ref": "#/$defs/Piecewise"
+            },
+            {
+              "$ref": "#/$defs/Aggregate"
+            }
+          ],
+          "title": "Arg"
+        }
+      },
+      "required": [
+        "op",
+        "arg"
+      ],
+      "title": "Not",
+      "type": "object"
+    },
+    "Param": {
+      "additionalProperties": false,
+      "description": "A dated parameter lookup, optionally dimensioned.\n\n`args` maps a dimension name to the expression selecting along it, which is what\nlets the standard deduction clamp its household_size index rather than its value.",
+      "properties": {
+        "op": {
+          "const": "parameter",
+          "title": "Op",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "args": {
+          "additionalProperties": {
+            "discriminator": {
+              "mapping": {
+                "add": "#/$defs/Arith",
+                "all": "#/$defs/BoolOp",
+                "all_over": "#/$defs/Aggregate",
+                "any": "#/$defs/BoolOp",
+                "any_over": "#/$defs/Aggregate",
+                "clamp": "#/$defs/Clamp",
+                "convert_period": "#/$defs/ConvertPeriod",
+                "count_over": "#/$defs/Aggregate",
+                "divide": "#/$defs/Arith",
+                "eq": "#/$defs/Compare",
+                "gt": "#/$defs/Compare",
+                "gte": "#/$defs/Compare",
+                "literal": "#/$defs/Lit",
+                "lt": "#/$defs/Compare",
+                "lte": "#/$defs/Compare",
+                "max": "#/$defs/Arith",
+                "max_over": "#/$defs/Aggregate",
+                "min": "#/$defs/Arith",
+                "min_over": "#/$defs/Aggregate",
+                "multiply": "#/$defs/Arith",
+                "neq": "#/$defs/Compare",
+                "not": "#/$defs/Not",
+                "parameter": "#/$defs/Param",
+                "piecewise": "#/$defs/Piecewise",
+                "ref": "#/$defs/Ref",
+                "round": "#/$defs/Round",
+                "subtract": "#/$defs/Arith",
+                "sum_over": "#/$defs/Aggregate"
+              },
+              "propertyName": "op"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Lit"
+              },
+              {
+                "$ref": "#/$defs/Ref"
+              },
+              {
+                "$ref": "#/$defs/Param"
+              },
+              {
+                "$ref": "#/$defs/Compare"
+              },
+              {
+                "$ref": "#/$defs/BoolOp"
+              },
+              {
+                "$ref": "#/$defs/Not"
+              },
+              {
+                "$ref": "#/$defs/Arith"
+              },
+              {
+                "$ref": "#/$defs/Round"
+              },
+              {
+                "$ref": "#/$defs/ConvertPeriod"
+              },
+              {
+                "$ref": "#/$defs/Clamp"
+              },
+              {
+                "$ref": "#/$defs/Piecewise"
+              },
+              {
+                "$ref": "#/$defs/Aggregate"
+              }
+            ]
+          },
+          "title": "Args",
+          "type": "object"
+        }
+      },
+      "required": [
+        "op",
+        "id"
+      ],
+      "title": "Param",
+      "type": "object"
+    },
+    "Parameter": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "value_type": {
+          "enum": [
+            "boolean",
+            "integer",
+            "decimal",
+            "money",
+            "date",
+            "string"
+          ],
+          "title": "Value Type",
+          "type": "string"
+        },
+        "periodicity": {
+          "anyOf": [
+            {
+              "enum": [
+                "day",
+                "month",
+                "year"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Periodicity"
+        },
+        "dimensions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "values": {
+          "items": {
+            "$ref": "#/$defs/ParameterValue"
+          },
+          "title": "Values",
+          "type": "array"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/SourceSpan"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        }
+      },
+      "required": [
+        "id",
+        "value_type"
+      ],
+      "title": "Parameter",
+      "type": "object"
+    },
+    "ParameterValue": {
+      "additionalProperties": false,
+      "properties": {
+        "effective_from": {
+          "title": "Effective From",
+          "type": "string"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "title": "Value"
+        },
+        "at": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "At",
+          "type": "object"
+        }
+      },
+      "required": [
+        "effective_from",
+        "value"
+      ],
+      "title": "ParameterValue",
+      "type": "object"
+    },
+    "Piecewise": {
+      "additionalProperties": false,
+      "description": "First matching case wins. `otherwise` is mandatory so a schedule can never fall\nthrough to a silent unknown.",
+      "properties": {
+        "op": {
+          "const": "piecewise",
+          "title": "Op",
+          "type": "string"
+        },
+        "cases": {
+          "items": {
+            "$ref": "#/$defs/Case"
+          },
+          "title": "Cases",
+          "type": "array"
+        },
+        "otherwise": {
+          "discriminator": {
+            "mapping": {
+              "add": "#/$defs/Arith",
+              "all": "#/$defs/BoolOp",
+              "all_over": "#/$defs/Aggregate",
+              "any": "#/$defs/BoolOp",
+              "any_over": "#/$defs/Aggregate",
+              "clamp": "#/$defs/Clamp",
+              "convert_period": "#/$defs/ConvertPeriod",
+              "count_over": "#/$defs/Aggregate",
+              "divide": "#/$defs/Arith",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "literal": "#/$defs/Lit",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "max": "#/$defs/Arith",
+              "max_over": "#/$defs/Aggregate",
+              "min": "#/$defs/Arith",
+              "min_over": "#/$defs/Aggregate",
+              "multiply": "#/$defs/Arith",
+              "neq": "#/$defs/Compare",
+              "not": "#/$defs/Not",
+              "parameter": "#/$defs/Param",
+              "piecewise": "#/$defs/Piecewise",
+              "ref": "#/$defs/Ref",
+              "round": "#/$defs/Round",
+              "subtract": "#/$defs/Arith",
+              "sum_over": "#/$defs/Aggregate"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Lit"
+            },
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "$ref": "#/$defs/Param"
+            },
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/BoolOp"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Arith"
+            },
+            {
+              "$ref": "#/$defs/Round"
+            },
+            {
+              "$ref": "#/$defs/ConvertPeriod"
+            },
+            {
+              "$ref": "#/$defs/Clamp"
+            },
+            {
+              "$ref": "#/$defs/Piecewise"
+            },
+            {
+              "$ref": "#/$defs/Aggregate"
+            }
+          ],
+          "title": "Otherwise"
+        }
+      },
+      "required": [
+        "op",
+        "cases",
+        "otherwise"
+      ],
+      "title": "Piecewise",
+      "type": "object"
+    },
+    "Ref": {
+      "additionalProperties": false,
+      "description": "A reference to a variable by stable id.",
+      "properties": {
+        "op": {
+          "const": "ref",
+          "title": "Op",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "id"
+      ],
+      "title": "Ref",
+      "type": "object"
+    },
+    "Round": {
+      "additionalProperties": false,
+      "description": "Explicit rounding. There is no default mode and no default quantum, because\n7 CFR 273.9(a)(3) rounds up and (d)(1) rounds up to the dollar \u2014 an implicit\nrule would silently be wrong for one of them.",
+      "properties": {
+        "op": {
+          "const": "round",
+          "title": "Op",
+          "type": "string"
+        },
+        "arg": {
+          "discriminator": {
+            "mapping": {
+              "add": "#/$defs/Arith",
+              "all": "#/$defs/BoolOp",
+              "all_over": "#/$defs/Aggregate",
+              "any": "#/$defs/BoolOp",
+              "any_over": "#/$defs/Aggregate",
+              "clamp": "#/$defs/Clamp",
+              "convert_period": "#/$defs/ConvertPeriod",
+              "count_over": "#/$defs/Aggregate",
+              "divide": "#/$defs/Arith",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "literal": "#/$defs/Lit",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "max": "#/$defs/Arith",
+              "max_over": "#/$defs/Aggregate",
+              "min": "#/$defs/Arith",
+              "min_over": "#/$defs/Aggregate",
+              "multiply": "#/$defs/Arith",
+              "neq": "#/$defs/Compare",
+              "not": "#/$defs/Not",
+              "parameter": "#/$defs/Param",
+              "piecewise": "#/$defs/Piecewise",
+              "ref": "#/$defs/Ref",
+              "round": "#/$defs/Round",
+              "subtract": "#/$defs/Arith",
+              "sum_over": "#/$defs/Aggregate"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Lit"
+            },
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "$ref": "#/$defs/Param"
+            },
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/BoolOp"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Arith"
+            },
+            {
+              "$ref": "#/$defs/Round"
+            },
+            {
+              "$ref": "#/$defs/ConvertPeriod"
+            },
+            {
+              "$ref": "#/$defs/Clamp"
+            },
+            {
+              "$ref": "#/$defs/Piecewise"
+            },
+            {
+              "$ref": "#/$defs/Aggregate"
+            }
+          ],
+          "title": "Arg"
+        },
+        "mode": {
+          "enum": [
+            "up",
+            "down",
+            "half_up",
+            "half_even",
+            "toward_zero"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "to": {
+          "title": "To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "arg",
+        "mode",
+        "to"
+      ],
+      "title": "Round",
+      "type": "object"
+    },
+    "Rule": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "eligibility",
+            "calculation",
+            "classification",
+            "parameter_selection",
+            "requirement"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "effective_from": {
+          "title": "Effective From",
+          "type": "string"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "when": {
+          "discriminator": {
+            "mapping": {
+              "add": "#/$defs/Arith",
+              "all": "#/$defs/BoolOp",
+              "all_over": "#/$defs/Aggregate",
+              "any": "#/$defs/BoolOp",
+              "any_over": "#/$defs/Aggregate",
+              "clamp": "#/$defs/Clamp",
+              "convert_period": "#/$defs/ConvertPeriod",
+              "count_over": "#/$defs/Aggregate",
+              "divide": "#/$defs/Arith",
+              "eq": "#/$defs/Compare",
+              "gt": "#/$defs/Compare",
+              "gte": "#/$defs/Compare",
+              "literal": "#/$defs/Lit",
+              "lt": "#/$defs/Compare",
+              "lte": "#/$defs/Compare",
+              "max": "#/$defs/Arith",
+              "max_over": "#/$defs/Aggregate",
+              "min": "#/$defs/Arith",
+              "min_over": "#/$defs/Aggregate",
+              "multiply": "#/$defs/Arith",
+              "neq": "#/$defs/Compare",
+              "not": "#/$defs/Not",
+              "parameter": "#/$defs/Param",
+              "piecewise": "#/$defs/Piecewise",
+              "ref": "#/$defs/Ref",
+              "round": "#/$defs/Round",
+              "subtract": "#/$defs/Arith",
+              "sum_over": "#/$defs/Aggregate"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/Lit"
+            },
+            {
+              "$ref": "#/$defs/Ref"
+            },
+            {
+              "$ref": "#/$defs/Param"
+            },
+            {
+              "$ref": "#/$defs/Compare"
+            },
+            {
+              "$ref": "#/$defs/BoolOp"
+            },
+            {
+              "$ref": "#/$defs/Not"
+            },
+            {
+              "$ref": "#/$defs/Arith"
+            },
+            {
+              "$ref": "#/$defs/Round"
+            },
+            {
+              "$ref": "#/$defs/ConvertPeriod"
+            },
+            {
+              "$ref": "#/$defs/Clamp"
+            },
+            {
+              "$ref": "#/$defs/Piecewise"
+            },
+            {
+              "$ref": "#/$defs/Aggregate"
+            }
+          ],
+          "title": "When"
+        },
+        "then": {
+          "$ref": "#/$defs/Then"
+        },
+        "exceptions": {
+          "items": {
+            "$ref": "#/$defs/Exception_"
+          },
+          "title": "Exceptions",
+          "type": "array"
+        },
+        "overrides": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Overrides",
+          "type": "array"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/SourceSpan"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "interpretation": {
+          "$ref": "#/$defs/Interpretation"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "effective_from",
+        "when",
+        "then"
+      ],
+      "title": "Rule",
+      "type": "object"
+    },
+    "SourceSpan": {
+      "additionalProperties": false,
+      "description": "Provenance. Every material semantic object carries at least one.",
+      "properties": {
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "citation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Citation"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote"
+        },
+        "term": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Term"
+        },
+        "node_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Node Id"
+        },
+        "start_char": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Char"
+        },
+        "end_char": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Char"
+        }
+      },
+      "required": [
+        "source_id"
+      ],
+      "title": "SourceSpan",
+      "type": "object"
+    },
+    "Then": {
+      "additionalProperties": false,
+      "properties": {
+        "assign": {
+          "$ref": "#/$defs/Assign"
+        }
+      },
+      "required": [
+        "assign"
+      ],
+      "title": "Then",
+      "type": "object"
+    },
+    "Variable": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "entity": {
+          "title": "Entity",
+          "type": "string"
+        },
+        "value_type": {
+          "enum": [
+            "boolean",
+            "integer",
+            "decimal",
+            "money",
+            "date",
+            "enumeration",
+            "string"
+          ],
+          "title": "Value Type",
+          "type": "string"
+        },
+        "periodicity": {
+          "anyOf": [
+            {
+              "enum": [
+                "day",
+                "month",
+                "year"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Periodicity"
+        },
+        "input": {
+          "default": false,
+          "title": "Input",
+          "type": "boolean"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/SourceSpan"
+          },
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "entity",
+        "value_type"
+      ],
+      "title": "Variable",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "package_id": {
+      "title": "Package Id",
+      "type": "string"
+    },
+    "jurisdiction": {
+      "title": "Jurisdiction",
+      "type": "string"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    },
+    "entities": {
+      "items": {
+        "$ref": "#/$defs/Entity"
+      },
+      "title": "Entities",
+      "type": "array"
+    },
+    "variables": {
+      "items": {
+        "$ref": "#/$defs/Variable"
+      },
+      "title": "Variables",
+      "type": "array"
+    },
+    "parameters": {
+      "items": {
+        "$ref": "#/$defs/Parameter"
+      },
+      "title": "Parameters",
+      "type": "array"
+    },
+    "rules": {
+      "items": {
+        "$ref": "#/$defs/Rule"
+      },
+      "title": "Rules",
+      "type": "array"
+    },
+    "ambiguities": {
+      "items": {
+        "$ref": "#/$defs/Ambiguity"
+      },
+      "title": "Ambiguities",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "package_id",
+    "jurisdiction"
+  ],
+  "title": "RulePackage",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mozenjii/NICXON/schemas/ruleweaver-0.1.schema.json"
+}
