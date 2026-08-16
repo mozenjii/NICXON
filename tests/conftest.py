@@ -33,7 +33,35 @@ PARAMETER_OVERRIDES = {
     },
     "param.snap.standard_deduction_minimum": {("48_dc",): Decimal("204")},
     "param.snap.shelter_cap": {("48_dc",): Decimal("672")},
+    # Thrifty Food Plan maxima, and the minimum benefit for one and two person
+    # households (8 percent of the one-person maximum, rounded).
+    "param.snap.max_allotment": {
+        ("1", "48_dc"): Decimal("292"),
+        ("2", "48_dc"): Decimal("536"),
+        ("3", "48_dc"): Decimal("785"),
+        # A jurisdiction whose maximum allotment is low enough that the base rule's
+        # zero floor actually binds. Territories genuinely run lower benefit structures,
+        # and without such a case the floor is untestable.
+        ("3", "lowmax"): Decimal("100"),
+    },
+    "param.snap.minimum_benefit": {
+        ("48_dc",): Decimal("23"),
+        ("lowmax",): Decimal("23"),
+    },
 }
+
+# Two-person and low-maximum coordinates, kept separate so the primary table stays
+# readable. Both exist to make specific rules observable, not to model real policy.
+PARAMETER_OVERRIDES["param.snap.fpl_annual"].update({
+    ("2", "48_dc"): Decimal("21150"),
+    ("3", "lowmax"): Decimal("26650"),
+})
+PARAMETER_OVERRIDES["param.snap.standard_deduction"].update({
+    ("2", "48_dc"): Decimal("180"),
+    ("3", "lowmax"): Decimal("180"),
+})
+PARAMETER_OVERRIDES["param.snap.standard_deduction_minimum"][("lowmax",)] = Decimal("204")
+PARAMETER_OVERRIDES["param.snap.shelter_cap"][("lowmax",)] = Decimal("672")
 
 
 @pytest.fixture(scope="session")

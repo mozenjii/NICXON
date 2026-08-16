@@ -116,6 +116,40 @@ def policy_intent_holds(pkg: RulePackage) -> bool:
         if sheltered[H + "net_monthly_income"] != Decimal("0"):
             return False
 
+        # --- benefit calculation, 7 CFR 273.10(e) ---
+
+        # 30 percent of net income, rounded UP: 0.30 * 594 = 178.20 -> 179, not 178.
+        # The regulation offers the State agency a choice of rounding methods and this
+        # pins which one is implemented.
+        if baseline[H + "benefit_reduction"] != Decimal("179"):
+            return False
+        if baseline[H + "allotment"] != Decimal("606"):  # 785 - 179
+            return False
+
+        # One-person household whose computed allotment goes negative receives the
+        # minimum benefit instead. Without this the minimum-benefit exception can be
+        # deleted unnoticed.
+        one = _eval(pkg, household([member(45, earned="1600")], size=1))
+        if one[H + "allotment"] != Decimal("23"):
+            return False
+
+        # Exactly two people: the size condition is "one-person and two-person", so the
+        # boundary must include two. Computed here is 11, below the 23 minimum, so the
+        # exception firing is observable.
+        two = _eval(pkg, household([member(45, unearned="1954"), member(40)], size=2))
+        if two[H + "allotment"] != Decimal("23"):
+            return False
+
+        # A jurisdiction with a low maximum allotment drives the base rule's floor.
+        low = _eval(pkg, household(
+            [member(34, earned="1500"), member(8), member(6)], shelter="900", jurisdiction="lowmax"))
+        if low[H + "allotment"] != Decimal("0"):
+            return False
+
+        # An ineligible household gets no allotment determination at all.
+        if H + "allotment" in rich:
+            return False
+
         # A missing input must not become a denial.
         ctx = household([member(34, earned="1500"), member(8)], shelter="900")
         del ctx.members[1]["var.member.earned_income"]
