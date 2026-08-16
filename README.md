@@ -57,22 +57,60 @@ OpenFisca / Catala / LegalRuleML / other adapters
 - [x] W3C PROV selected as inspiration/interop for provenance.
 - [x] Human review, abstention, ambiguity, and generated tests defined as mandatory architectural features.
 
+### Built
+
+- [x] Typed rule IR with a closed expression AST.
+- [x] Deterministic evaluator, four-state, with execution traces.
+- [x] Verification engine — 16 checks with stable `RWxxxx` diagnostic codes.
+- [x] Boundary case generator.
+- [x] Mutation harness — **17/17 planted faults caught**.
+- [x] Golden corpus: 13 SNAP rules hand-encoded from 7 CFR 273.9.
+- [x] CLI.
+
 ### Not built yet
 
-- [ ] Repository implementation.
-- [ ] Production RuleWeaver IR schemas.
 - [ ] Source ingestion pipeline.
-- [ ] LLM compiler.
-- [ ] Rule evaluator.
-- [ ] Verification engine.
-- [ ] Test generator.
+- [ ] LLM compiler — deliberately last, until the deterministic core is proven.
 - [ ] Human review UI.
 - [ ] OpenFisca adapter.
 - [ ] Amendment/version diff engine.
 - [ ] Public benchmark.
-- [ ] API/CLI.
 
 See [`docs/01_PROJECT_STATUS.md`](docs/01_PROJECT_STATUS.md) for the detailed state.
+
+## Quickstart
+
+```bash
+python -m venv .venv
+.venv/bin/pip install -e ".[dev]"        # Windows: .venv/Scripts/pip
+pytest                                    # 54 tests
+```
+
+Check a rule package, then run a household through it:
+
+```bash
+ruleweaver validate examples/snap/rules.json
+ruleweaver evaluate examples/snap/rules.json examples/snap/scenarios/baseline.json --trace
+```
+
+The trace shows which rule produced each value, which is the point:
+
+```text
+var.household.standard_deduction      = 204   [rule.snap.standard_deduction_minimum base]
+var.household.excess_shelter_deduction = 402  [exception:exception.snap.shelter_cap_applies]
+var.household.is_income_eligible      = True  [rule.snap.income_eligible base]
+```
+
+The first line is a *notwithstanding* clause overriding a computed value; the second is a
+substitutive exception applying a cap because the household has no elderly or disabled
+member. Both are traceable to the clause that requires them.
+
+A missing input never becomes a denial — it evaluates to `UNKNOWN` and propagates:
+
+```bash
+ruleweaver boundaries examples/snap/rules.json examples/snap/scenarios/baseline.json \
+  --observe var.household.is_income_eligible
+```
 
 ## Read this documentation in order
 
