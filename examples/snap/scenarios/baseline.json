@@ -1,0 +1,38 @@
+{
+  "description": "A working parent with two children in the 48 states and DC. Income eligible.",
+  "on_date": "2026-01-01",
+
+  "parameters": [
+    {"id": "param.snap.fpl_annual", "at": {"household_size": "3", "jurisdiction": "48_dc"}, "value": "26650"},
+    {"id": "param.snap.standard_deduction", "at": {"household_size": "3", "jurisdiction": "48_dc"}, "value": "180"},
+    {"id": "param.snap.standard_deduction_minimum", "at": {"jurisdiction": "48_dc"}, "value": "204"},
+    {"id": "param.snap.shelter_cap", "at": {"jurisdiction": "48_dc"}, "value": "672"}
+  ],
+
+  "household": {
+    "var.household.size": "3",
+    "var.household.jurisdiction": "48_dc",
+    "var.household.shelter_expenses": "900"
+  },
+
+  "members": [
+    {
+      "var.member.age": "34",
+      "var.member.receives_disability_benefit": false,
+      "var.member.earned_income": "1500",
+      "var.member.unearned_income": "0"
+    },
+    {
+      "var.member.age": "8",
+      "var.member.receives_disability_benefit": false,
+      "var.member.earned_income": "0",
+      "var.member.unearned_income": "0"
+    },
+    {
+      "var.member.age": "6",
+      "var.member.receives_disability_benefit": false,
+      "var.member.earned_income": "0",
+      "var.member.unearned_income": "0"
+    }
+  ]
+}
