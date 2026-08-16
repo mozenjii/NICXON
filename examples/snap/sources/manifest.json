@@ -1,0 +1,39 @@
+{
+  "corpus_id": "snap-us-federal",
+  "description": "US SNAP federal regulations. Authoritative source snapshots for the RuleWeaver v0.1 golden fixture.",
+  "rights": {
+    "status": "public-domain",
+    "basis": "US government edicts doctrine — federal regulations are not subject to copyright.",
+    "redistribution": "permitted",
+    "reviewed": "2026-08-17"
+  },
+  "retrieval": {
+    "method": "eCFR public API",
+    "endpoint_pattern": "https://www.ecfr.gov/api/versioner/v1/full/{date}/title-7.xml?part={part}&section={section}",
+    "note": "eCFR blocks automated browser access and directs programmatic use to this API. Do not scrape the HTML site."
+  },
+  "sources": [
+    {
+      "source_id": "7cfr-271.2",
+      "citation": "7 CFR 271.2",
+      "title": "Definitions",
+      "file": "7cfr-271.2.xml",
+      "point_in_time": "2026-01-01",
+      "retrieved_at": "2026-08-17",
+      "sha256": "e47873db4e2b5d2acd05d5bed7d3e8d9e213f299b16af91fb8483480e1cda1ed",
+      "bytes": 43303,
+      "defined_terms": 95
+    },
+    {
+      "source_id": "7cfr-273.9",
+      "citation": "7 CFR 273.9",
+      "title": "Income and deductions",
+      "file": "7cfr-273.9.xml",
+      "point_in_time": "2026-01-01",
+      "retrieved_at": "2026-08-17",
+      "sha256": "2844334a27728b7bf87ee638b1f5d4f0d99b82e131821379440778fbb8cd588c",
+      "bytes": 58938
+    }
+  ],
+  "verification": "sha256sum 7cfr-271.2.xml 7cfr-273.9.xml and compare against the sha256 fields above."
+}
