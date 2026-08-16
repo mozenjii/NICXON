@@ -66,7 +66,8 @@ OpenFisca / Catala / LegalRuleML / other adapters
 - [x] Mutation harness — **17/17 planted faults caught**.
 - [x] Date transition generator.
 - [x] Semantic diff and amendment impact analysis.
-- [x] Golden corpus: 13 SNAP rules hand-encoded from 7 CFR 273.9.
+- [x] Golden corpus: 15 SNAP rules hand-encoded from 7 CFR 273.9 and 273.10,
+      covering income eligibility and benefit calculation.
 - [x] CLI.
 
 ### Not built yet
@@ -84,7 +85,7 @@ See [`docs/01_PROJECT_STATUS.md`](docs/01_PROJECT_STATUS.md) for the detailed st
 ```bash
 python -m venv .venv
 .venv/bin/pip install -e ".[dev]"        # Windows: .venv/Scripts/pip
-pytest                                    # 54 tests
+pytest                                    # 94 tests
 ```
 
 Check a rule package, then run a household through it:

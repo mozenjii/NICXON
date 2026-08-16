@@ -186,10 +186,10 @@ Keep these up to date once implementation starts:
 |---|---|
 | Core package exists | Yes — `src/ruleweaver/{ir,runtime}` |
 | IR schema version | 0.1.0 |
-| Golden policy corpora | 1 (SNAP, 13 rules from 7 CFR 273.9) |
+| Golden policy corpora | 1 (SNAP, 15 rules from 7 CFR 273.9 and 273.10) |
 | Deterministic rule features implemented | 12 expression nodes, exceptions, overrides, 4-state values, trace |
-| Tests | 79 passing (`pytest`) |
-| Mutation score | **17/17 caught (100%)** |
+| Tests | 94 passing (`pytest`) |
+| Mutation score | **22/22 caught (100%)** |
 | Validators implemented | 16, stable `RWxxxx` codes |
 | Test generators | boundary + date transition |
 | Amendment impact | semantic diff + dependency closure + outcome comparison |

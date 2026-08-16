@@ -86,6 +86,38 @@ a member receives SSI; it does not compute Social Security eligibility.
 
 ---
 
+## Benefit calculation terms
+
+Added 2026-08-17 for 7 CFR 273.10(e). **Process note:** these rules were encoded before
+the terms were recorded here, which inverts ADR-018. The order matters — the vocabulary
+exists so that "approve this rule" is a well-posed question — and the lapse is recorded
+rather than quietly corrected.
+
+| Term | Definition | Source |
+|---|---|---|
+| `max_allotment` | The Thrifty Food Plan maximum for the household size. Published annually by FNS; an **external dated input**, not computed. | 7 CFR 273.10(e)(2)(ii)(A) |
+| `benefit_reduction` | `DERIVED` — thirty percent of `net_monthly_income`. The regulation names the proportion but not the quantity. | 7 CFR 273.10(e)(2)(ii)(A) |
+| `allotment` | "the total value of benefits a household is authorized to receive during each month or other time period" — computed as `max_allotment` less `benefit_reduction`, floored at zero. | 7 CFR 271.2; 273.10(e)(2)(ii)(A) |
+| `minimum_benefit` | "8 percent of the maximum allotment for a household of one, rounded to the nearest whole dollar." Applies to eligible one- and two-person households except in an initial month. | 7 CFR 273.10(e)(2)(ii)(C) |
+
+### An unresolved discretionary choice
+
+`273.10(e)(2)(ii)(A)` gives the State agency a **choice** of two rounding methods:
+
+1. round thirty percent of net income up to the nearest dollar; or
+2. do not round it, and instead round the resulting allotment down.
+
+These produce different amounts. v0.1 implements method (1) and records the choice on
+`rule.snap.benefit_reduction`. This is not an ambiguity in the law — the law is clear that
+both are permitted — it is **jurisdictional configuration**, and modelling it as a
+parameter dimension is the correct fix. Filed as open vocabulary question 4.
+
+**Out of v0.1 scope:** initial-month proration (`273.10(a)(1)`) and the $10 initial-month
+threshold (`(e)(2)(ii)(B)`), both of which depend on a certification-period model the IR
+does not yet carry.
+
+---
+
 ## Constructs these terms force into IR v0.1
 
 This is the point of encoding real law before freezing the IR. Every construct below is
@@ -120,3 +152,6 @@ parameters or later work, not v0.1 rules.
 3. `standard_deduction` has three interacting rules — percentage, six-person clamp, and
    statutory minimum. Encoding order determines the result. ADR-020's precedence model
    must resolve this, and it is the best available test case for it.
+4. The rounding method at `273.10(e)(2)(ii)(A)` is a State agency choice, not a fact about
+   the law. It should become a parameter dimension so a jurisdiction selects it, rather
+   than being hard-coded as it is in v0.1.
