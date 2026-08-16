@@ -153,3 +153,27 @@ class TestReportShape:
         for d in validate(RulePackage.model_validate(raw)).diagnostics:
             assert d.code.startswith("RW")
             assert d.severity in ("info", "warning", "error", "blocking")
+
+
+class TestLoadGate:
+    """docs/06_VERIFICATION_SAFETY.md: deterministic validation may not be bypassed."""
+
+    def test_load_accepts_the_fixture(self):
+        import ruleweaver
+        assert ruleweaver.load(FIXTURE).package_id == "snap.income_eligibility"
+
+    def test_load_raises_rather_than_returning_a_report(self, raw, tmp_path):
+        import ruleweaver
+        doc = copy.deepcopy(raw)
+        doc["rules"][3]["sources"] = []
+        broken = tmp_path / "broken.json"
+        broken.write_text(json.dumps(doc), encoding="utf-8")
+        with pytest.raises(ruleweaver.InvalidPackage) as excinfo:
+            ruleweaver.load(broken)
+        assert "RW7001" in str(excinfo.value)
+
+    def test_warnings_alone_do_not_block_loading(self, raw):
+        import ruleweaver
+        # The fixture carries RW3009 (dead rule) as a warning and must still load.
+        pkg = ruleweaver.loads(raw)
+        assert any(d.code == "RW3009" for d in validate(pkg).diagnostics)
