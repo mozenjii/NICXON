@@ -66,3 +66,26 @@ class TestSchema:
         schema = json.loads(capsys.readouterr().out)
         assert schema["title"] == "RulePackage"
         assert "properties" in schema
+
+
+AMENDMENT = FIXTURE.parent / "amendments" / "earned-deduction-25pct.json"
+
+
+class TestDiff:
+    def test_reports_the_semantic_change(self, capsys):
+        assert main(["diff", str(FIXTURE), str(AMENDMENT)]) == 0
+        out = capsys.readouterr().out
+        assert "SEMANTIC" in out
+        assert "0.20 -> 0.25" in out
+
+    def test_identical_packages_report_no_changes(self, capsys):
+        assert main(["diff", str(FIXTURE), str(FIXTURE)]) == 0
+        assert "no changes" in capsys.readouterr().out
+
+    def test_scenario_shows_what_actually_moves(self, capsys):
+        main(["diff", str(FIXTURE), str(AMENDMENT),
+              "--scenario", str(SCENARIO),
+              "--observe", "var.household.net_monthly_income"])
+        out = capsys.readouterr().out
+        assert "LEGISLATIVE CHANGE IMPACT" in out
+        assert "594.0000 -> 481.5000" in out

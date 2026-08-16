@@ -19,6 +19,7 @@ from pathlib import Path
 from . import InvalidPackage, load
 from .ir import RulePackage
 from .runtime import Context, Evaluator, ParameterTable
+from .diff import analyse, compare
 from .testgen import generate
 from .verify import validate
 
@@ -103,6 +104,29 @@ def cmd_boundaries(args) -> int:
     return 0
 
 
+def cmd_diff(args) -> int:
+    before = _load_or_exit(args.before, verify=not args.no_verify)
+    after = _load_or_exit(args.after, verify=not args.no_verify)
+    report = compare(before, after)
+    print(report)
+
+    if not args.scenario:
+        return 0
+    if not report.semantic:
+        print("\nno semantic change, so no determination can move")
+        return 0
+
+    scenarios = {}
+    for path in args.scenario:
+        ctx, overrides = _scenario(Path(path))
+        scenarios[Path(path).stem] = (ctx, overrides)
+
+    observe = args.observe or ["var.household.is_income_eligible"]
+    print()
+    print(analyse(before, after, report, scenarios, observe))
+    return 0
+
+
 def cmd_schema(args) -> int:
     print(json.dumps(RulePackage.model_json_schema(), indent=2))
     return 0
@@ -129,6 +153,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--observe", action="append", help="variable id to report per case")
     p.add_argument("--no-verify", action="store_true")
     p.set_defaults(func=cmd_boundaries)
+
+    p = sub.add_parser("diff", help="compare two versions and report amendment impact")
+    p.add_argument("before")
+    p.add_argument("after")
+    p.add_argument("--scenario", action="append", help="scenario file to re-run on both versions")
+    p.add_argument("--observe", action="append", help="variable id to compare")
+    p.add_argument("--no-verify", action="store_true")
+    p.set_defaults(func=cmd_diff)
 
     p = sub.add_parser("schema", help="print the JSON Schema for a rule package")
     p.set_defaults(func=cmd_schema)
