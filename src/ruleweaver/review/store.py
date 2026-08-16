@@ -81,20 +81,24 @@ seeded_errors = Table(
 GENESIS = "0" * 64
 
 
-def _content_digest(event: ReviewEvent) -> str:
-    """Hash of the fields that must not change after the fact."""
+def _digest_fields(
+    *, id: str, rule_id: str, reviewer: str, decision: str, rule_hash: str,
+    source_hash: str, at: str, note: str | None, edited_to: str | None,
+    seeded_error_id: str | None,
+) -> str:
+    """Hash of the fields that must not change after the fact.
+
+    Deliberately takes primitives, not a ReviewEvent. Verification has to work on what is
+    actually stored: a tampered row may no longer satisfy the domain invariants, and a
+    verifier that reconstructs objects would raise on exactly the rows it exists to
+    catch. `edited_to` is hashed as its stored JSON string so re-serialisation cannot
+    shift the digest.
+    """
     payload = json.dumps(
         {
-            "id": event.id,
-            "rule_id": event.rule_id,
-            "reviewer": event.reviewer,
-            "decision": event.decision.value,
-            "rule_hash": event.rule_hash,
-            "source_hash": event.source_hash,
-            "at": event.at,
-            "note": event.note,
-            "edited_to": event.edited_to,
-            "seeded_error_id": event.seeded_error_id,
+            "id": id, "rule_id": rule_id, "reviewer": reviewer, "decision": decision,
+            "rule_hash": rule_hash, "source_hash": source_hash, "at": at,
+            "note": note, "edited_to": edited_to, "seeded_error_id": seeded_error_id,
         },
         sort_keys=True,
         ensure_ascii=False,
@@ -102,8 +106,8 @@ def _content_digest(event: ReviewEvent) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
-def _chain(prev_hash: str, event: ReviewEvent) -> str:
-    return hashlib.sha256(f"{prev_hash}{_content_digest(event)}".encode()).hexdigest()
+def _chain_from_fields(prev_hash: str, content_digest: str) -> str:
+    return hashlib.sha256(f"{prev_hash}{content_digest}".encode()).hexdigest()
 
 
 def build_engine(url: str | None = None) -> Engine:
@@ -137,9 +141,16 @@ class ReviewStore:
         The decision and its audit row are one row in one transaction — there is no
         state in which a rule is approved but the approval is unrecorded.
         """
+        edited_to = json.dumps(event.edited_to) if event.edited_to else None
         with self._connect() as conn:
             prev = self._head(conn)
-            chain_hash = _chain(prev, event)
+            content = _digest_fields(
+                id=event.id, rule_id=event.rule_id, reviewer=event.reviewer,
+                decision=event.decision.value, rule_hash=event.rule_hash,
+                source_hash=event.source_hash, at=event.at, note=event.note,
+                edited_to=edited_to, seeded_error_id=event.seeded_error_id,
+            )
+            chain_hash = _chain_from_fields(prev, content)
             conn.execute(review_events.insert().values(
                 id=event.id,
                 rule_id=event.rule_id,
@@ -150,7 +161,7 @@ class ReviewStore:
                 at=event.at,
                 duration_seconds=event.duration_seconds,
                 note=event.note,
-                edited_to=json.dumps(event.edited_to) if event.edited_to else None,
+                edited_to=edited_to,
                 seeded_error_id=event.seeded_error_id,
                 prev_hash=prev,
                 chain_hash=chain_hash,
@@ -196,8 +207,13 @@ class ReviewStore:
         prev = GENESIS
         with self.engine.connect() as conn:
             for row in conn.execute(query):
-                event = self._row_to_event(row)
-                expected = _chain(prev, event)
+                content = _digest_fields(
+                    id=row.id, rule_id=row.rule_id, reviewer=row.reviewer,
+                    decision=row.decision, rule_hash=row.rule_hash,
+                    source_hash=row.source_hash, at=row.at, note=row.note,
+                    edited_to=row.edited_to, seeded_error_id=row.seeded_error_id,
+                )
+                expected = _chain_from_fields(prev, content)
                 if row.prev_hash != prev or row.chain_hash != expected:
                     return False, row.id
                 prev = row.chain_hash
