@@ -33,6 +33,14 @@ desktop.ini
 .vscode/*
 !.vscode/extensions.json
 
+# ─── Python build output ─────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
 # ─── Dependencies / build output ─────────────────────────────────────
 node_modules/
 dist/
