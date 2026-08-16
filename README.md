@@ -43,7 +43,7 @@ OpenFisca / Catala / LegalRuleML / other adapters
 9. **The repository must remain useful even if model vendors change.**
 10. **RuleWeaver must never present itself as an authoritative legal source or legal-advice system.**
 
-## Current status — 2026-08-16
+## Current status — 2026-08-17
 
 ### Decided / researched
 
@@ -63,7 +63,7 @@ OpenFisca / Catala / LegalRuleML / other adapters
 - [x] Deterministic evaluator, four-state, with execution traces.
 - [x] Verification engine — 16 checks with stable `RWxxxx` diagnostic codes.
 - [x] Boundary case generator.
-- [x] Mutation harness — **17/17 planted faults caught**.
+- [x] Mutation harness — **22/22 planted faults caught**.
 - [x] Date transition generator.
 - [x] Semantic diff and amendment impact analysis.
 - [x] Golden corpus: 15 SNAP rules hand-encoded from 7 CFR 273.9 and 273.10,
@@ -156,6 +156,7 @@ propagates into impact analysis.
 13. [`docs/12_RESEARCH_REFERENCES.md`](docs/12_RESEARCH_REFERENCES.md)
 14. [`docs/13_REPO_STRUCTURE.md`](docs/13_REPO_STRUCTURE.md)
 15. [`docs/14_GLOSSARY.md`](docs/14_GLOSSARY.md)
+16. [`docs/15_VOCABULARY.md`](docs/15_VOCABULARY.md)
 
 ## v0.1 definition of success
 

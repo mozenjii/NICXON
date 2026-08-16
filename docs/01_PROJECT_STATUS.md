@@ -1,7 +1,7 @@
 # 01 — Project Status
 
 **Status date:** 2026-08-17  
-**Phase:** Architecture reviewed / v0.1 rescoped / pre-implementation
+**Phase:** v0.1 deterministic core built — M0 closed, M1 validators complete
 
 > **2026-08-17 review.** The spec pack was reviewed against verified external research.
 > Architecture held; scope and three assumptions did not. See ADR-017 to ADR-022 in
@@ -60,57 +60,59 @@ This file must stay brutally accurate. Do not mark an item complete because a pl
 - [x] Better Rules methodology and policy-intent test concept reviewed.
 - [x] 2026 PROLEG legislation-to-executable-rules work reviewed.
 
-## Not implemented
+## Implementation state
+
+Checked items are built and covered by tests. Everything unchecked is genuinely absent.
 
 ### Foundation
 
-- [ ] Python package bootstrapped.
-- [ ] CI configured.
+- [x] Python package bootstrapped.
+- [x] CI configured.
 - [ ] code quality tooling configured.
-- [ ] diagnostics framework defined.
-- [ ] serialization/version strategy implemented.
+- [x] diagnostics framework defined.
+- [x] serialization/version strategy implemented.
 
 ### Source model
 
 - [ ] source document object.
 - [ ] hierarchy/section model.
-- [ ] source spans.
-- [ ] source hashes.
+- [x] source spans.
+- [x] source hashes.
 - [ ] cross-reference model.
-- [ ] effective-version model.
+- [x] effective-version model.
 
 ### Rule IR
 
-- [ ] production schema.
-- [ ] expression system.
-- [ ] entities and variables.
-- [ ] parameter model.
-- [ ] temporal semantics.
-- [ ] exceptions/priority semantics.
-- [ ] ambiguity representation.
-- [ ] interpretation/review state.
+- [x] production schema.
+- [x] expression system.
+- [x] entities and variables.
+- [x] parameter model.
+- [x] temporal semantics.
+- [x] exceptions/priority semantics.
+- [x] ambiguity representation.
+- [x] interpretation/review state.
 - [ ] provenance relation model.
 
 ### Runtime and verification
 
-- [ ] evaluator.
+- [x] evaluator.
 - [ ] type checker.
-- [ ] reference resolver.
-- [ ] dependency graph.
-- [ ] cycle detection.
-- [ ] temporal validator.
+- [x] reference resolver.
+- [x] dependency graph.
+- [x] cycle detection.
+- [x] temporal validator.
 - [ ] contradiction diagnostics.
 - [ ] completeness diagnostics.
-- [ ] execution trace.
+- [x] execution trace.
 
 ### Test generation
 
-- [ ] threshold boundary generator.
-- [ ] date-transition generator.
+- [x] threshold boundary generator.
+- [x] date-transition generator.
 - [ ] exception generator.
 - [ ] combinatorial case generator.
 - [ ] property-based test framework.
-- [ ] approved human test fixture format.
+- [x] approved human test fixture format.
 
 ### Ingestion/compiler
 
@@ -144,15 +146,15 @@ This file must stay brutally accurate. Do not mark an item complete because a pl
 
 ### Version change analysis
 
-- [ ] source version differ.
-- [ ] semantic rule differ.
-- [ ] downstream dependency impact analysis.
+- [x] source version differ.
+- [x] semantic rule differ.
+- [x] downstream dependency impact analysis.
 - [ ] affected test analysis.
 
 ### Benchmark
 
 - [ ] corpus selected.
-- [ ] source licensing reviewed.
+- [x] source licensing reviewed.
 - [ ] annotation schema.
 - [ ] gold rules.
 - [ ] gold source links.
@@ -204,11 +206,11 @@ Keep these up to date once implementation starts:
 
 | Criterion | State |
 |---|---|
-| At least 10 hand-authored rules | **Met** — 13 |
+| At least 10 hand-authored rules | **Met** — 15 |
 | Parameters that change by date | **Met** — dated `ParameterValue` intervals |
 | At least one exception | **Met** — 2, both substitutive |
 | At least one dependency chain | **Met** — gross income → deductions → net income → eligibility |
-| Source spans attached to every rule | **Met** — all 13 cite a clause |
+| Source spans attached to every rule | **Met** — all 15 cite a clause |
 | Deterministic evaluation | **Met** — fixed-point evaluator, no model in the path |
 | Generated boundary tests | **Met** — generator probes every threshold at x-1/x/x+1 |
 | Explicit `UNKNOWN` behaviour | **Met** — propagates to the decision, raises on `__bool__` |
