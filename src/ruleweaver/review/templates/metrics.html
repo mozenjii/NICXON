@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Review health{% endblock %}
+{% block content %}
+
+<h2 style="margin:.3rem 0 1rem; font-size:1.15rem">Review health</h2>
+
+<p class="muted" style="max-width:60ch">
+  These numbers exist because a review gate nobody measures stops being a gate. Shown
+  incorrect suggestions, very experienced reviewers in one controlled study fell from
+  82.3% to 45.5% correct — expertise reduces automation bias but does not remove it.
+</p>
+
+{% for w in warnings %}
+  <div class="warning">{{ w }}</div>
+{% endfor %}
+
+<div class="split">
+  <div class="panel">
+    <h2>Throughput</h2>
+    <table>
+      <tr><td>Reviewed</td><td><strong>{{ metrics.total_reviewed }}</strong></td></tr>
+      <tr><td>Approved</td><td>{{ metrics.approvals }}</td></tr>
+      <tr><td>Rejected</td><td>{{ metrics.rejections }}</td></tr>
+      <tr>
+        <td>Approval rate</td>
+        <td>{% if metrics.approval_rate is not none %}{{ '%.0f%%'|format(metrics.approval_rate * 100) }}{% else %}—{% endif %}</td>
+      </tr>
+      <tr>
+        <td>Median duration</td>
+        <td>{% if metrics.median_duration is not none %}{{ '%.0f'|format(metrics.median_duration) }}s{% else %}—{% endif %}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>Seeded faults</h2>
+    {% if metrics.catch_rate is not none %}
+      <p style="font-size:2rem; margin:.2rem 0">
+        <strong>{{ '%.0f%%'|format(metrics.catch_rate * 100) }}</strong>
+      </p>
+      <p class="muted">{{ metrics.seeded_caught }} of {{ metrics.seeded_total }} planted faults caught</p>
+    {% else %}
+      <p class="muted">
+        Nothing seeded yet, so the catch rate is unmeasured — which is different from
+        zero. Until faults are planted, this queue provides no evidence that review
+        catches anything.
+      </p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Audit chain</h2>
+  {% if chain_intact %}
+    <p><span class="status status-approved">intact</span>
+       <span class="muted">— every recorded decision hashes to its predecessor.</span></p>
+  {% else %}
+    <div class="warning">
+      Chain broken at event <code>{{ broken_at }}</code>. A decision has been altered or
+      removed outside the application. Every record from this point on is untrustworthy;
+      treat the approvals it covers as unverified.
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

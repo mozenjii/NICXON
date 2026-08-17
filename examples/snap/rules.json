@@ -1,0 +1,1271 @@
+{
+  "schema_version": "0.1.0",
+  "package_id": "snap.income_eligibility",
+  "jurisdiction": "us-federal",
+  "description": "SNAP income eligibility and deductions, hand-encoded from 7 CFR 273.9 with no model assistance. Phase A fixture per ADR-017. Every rule cites its source span.",
+  "entities": [
+    {
+      "id": "household",
+      "label": "Household",
+      "kind": "group"
+    },
+    {
+      "id": "household_member",
+      "label": "Household member",
+      "kind": "member",
+      "member_of": "household"
+    }
+  ],
+  "variables": [
+    {
+      "id": "var.member.age",
+      "entity": "household_member",
+      "value_type": "integer",
+      "input": true
+    },
+    {
+      "id": "var.member.receives_disability_benefit",
+      "entity": "household_member",
+      "value_type": "boolean",
+      "input": true,
+      "note": "Covers 271.2 branches (2) through (9). Supplied as input; not computed."
+    },
+    {
+      "id": "var.member.earned_income",
+      "entity": "household_member",
+      "value_type": "money",
+      "periodicity": "month",
+      "input": true
+    },
+    {
+      "id": "var.member.unearned_income",
+      "entity": "household_member",
+      "value_type": "money",
+      "periodicity": "month",
+      "input": true
+    },
+    {
+      "id": "var.household.size",
+      "entity": "household",
+      "value_type": "integer",
+      "input": true
+    },
+    {
+      "id": "var.household.jurisdiction",
+      "entity": "household",
+      "value_type": "enumeration",
+      "input": true
+    },
+    {
+      "id": "var.household.shelter_expenses",
+      "entity": "household",
+      "value_type": "money",
+      "periodicity": "month",
+      "input": true
+    },
+    {
+      "id": "var.member.is_elderly_or_disabled",
+      "entity": "household_member",
+      "value_type": "boolean"
+    },
+    {
+      "id": "var.household.has_elderly_or_disabled_member",
+      "entity": "household",
+      "value_type": "boolean"
+    },
+    {
+      "id": "var.household.earned_income_total",
+      "entity": "household",
+      "value_type": "money",
+      "periodicity": "month"
+    },
+    {
+      "id": "var.household.gross_monthly_income",
+      "entity": "household",
+      "value_type": "money",
+      "periodicity": "month"
+    },
+    {
+      "id": "var.household.standard_deduction",
+      "entity": "household",
+      "value_type": "money",
+      "periodicity": "month"
+    },
+    {
+      "id": "var.household.earned_income_deduction",
+      "entity": "household",
+      "value_type": "money",
+      "periodicity": "month"
+    },
+    {
+      "id": "var.household.income_after_other_deductions",
+      "entity": "household",
+      "value_type": "money",
+      "periodicity": "month"
+    },
+    {
+      "id": "var.household.excess_shelter_deduction",
+      "entity": "household",
+      "value_type": "money",
+      "periodicity": "month"
+    },
+    {
+      "id": "var.household.net_monthly_income",
+      "entity": "household",
+      "value_type": "money",
+      "periodicity": "month"
+    },
+    {
+      "id": "var.household.meets_gross_income_test",
+      "entity": "household",
+      "value_type": "boolean"
+    },
+    {
+      "id": "var.household.meets_net_income_test",
+      "entity": "household",
+      "value_type": "boolean"
+    },
+    {
+      "id": "var.household.is_income_eligible",
+      "entity": "household",
+      "value_type": "boolean"
+    },
+    {
+      "id": "var.household.benefit_reduction",
+      "entity": "household",
+      "value_type": "money",
+      "periodicity": "month"
+    },
+    {
+      "id": "var.household.allotment",
+      "entity": "household",
+      "value_type": "money",
+      "periodicity": "month"
+    }
+  ],
+  "parameters": [
+    {
+      "id": "param.snap.fpl_annual",
+      "value_type": "money",
+      "periodicity": "year",
+      "dimensions": [
+        "household_size",
+        "jurisdiction"
+      ],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(a)"
+        }
+      ],
+      "note": "External dated input published annually by HHS. Not computed here."
+    },
+    {
+      "id": "param.snap.gross_income_multiplier",
+      "value_type": "decimal",
+      "values": [
+        {
+          "effective_from": "1978-01-01",
+          "effective_to": null,
+          "value": "1.30"
+        }
+      ],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(a)(1)"
+        }
+      ]
+    },
+    {
+      "id": "param.snap.earned_income_deduction_rate",
+      "value_type": "decimal",
+      "values": [
+        {
+          "effective_from": "1978-01-01",
+          "effective_to": null,
+          "value": "0.20"
+        }
+      ],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(d)(2)"
+        }
+      ]
+    },
+    {
+      "id": "param.snap.standard_deduction",
+      "value_type": "money",
+      "periodicity": "month",
+      "dimensions": [
+        "household_size",
+        "jurisdiction"
+      ],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(d)(1)(i)"
+        }
+      ]
+    },
+    {
+      "id": "param.snap.standard_deduction_minimum",
+      "value_type": "money",
+      "periodicity": "month",
+      "dimensions": [
+        "jurisdiction"
+      ],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(d)(1)(iii)"
+        }
+      ]
+    },
+    {
+      "id": "param.snap.shelter_cap",
+      "value_type": "money",
+      "periodicity": "month",
+      "dimensions": [
+        "jurisdiction"
+      ],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(d)(6)(ii)"
+        }
+      ]
+    },
+    {
+      "id": "param.snap.shelter_income_share",
+      "value_type": "decimal",
+      "values": [
+        {
+          "effective_from": "1978-01-01",
+          "effective_to": null,
+          "value": "0.50"
+        }
+      ],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(d)(6)(ii)"
+        }
+      ]
+    },
+    {
+      "id": "param.snap.benefit_reduction_rate",
+      "value_type": "decimal",
+      "values": [
+        {
+          "effective_from": "1978-01-01",
+          "effective_to": null,
+          "value": "0.30",
+          "at": {}
+        }
+      ],
+      "sources": [
+        {
+          "source_id": "7cfr-273.10",
+          "citation": "7 CFR 273.10(e)(2)(ii)(A)"
+        }
+      ]
+    },
+    {
+      "id": "param.snap.max_allotment",
+      "value_type": "money",
+      "periodicity": "month",
+      "dimensions": [
+        "household_size",
+        "jurisdiction"
+      ],
+      "sources": [
+        {
+          "source_id": "7cfr-273.10",
+          "citation": "7 CFR 273.10(e)(2)(ii)(A)"
+        }
+      ],
+      "note": "The Thrifty Food Plan maximum, published annually by FNS."
+    },
+    {
+      "id": "param.snap.minimum_benefit",
+      "value_type": "money",
+      "periodicity": "month",
+      "dimensions": [
+        "jurisdiction"
+      ],
+      "sources": [
+        {
+          "source_id": "7cfr-273.10",
+          "citation": "7 CFR 273.10(e)(2)(ii)(C)"
+        }
+      ],
+      "note": "8 percent of the maximum allotment for a household of one, rounded."
+    }
+  ],
+  "rules": [
+    {
+      "id": "rule.snap.member_is_elderly_or_disabled",
+      "kind": "classification",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "when": {
+        "op": "literal",
+        "value": true
+      },
+      "then": {
+        "assign": {
+          "target": "var.member.is_elderly_or_disabled",
+          "value": {
+            "op": "any",
+            "args": [
+              {
+                "op": "gte",
+                "left": {
+                  "op": "ref",
+                  "id": "var.member.age"
+                },
+                "right": {
+                  "op": "literal",
+                  "value": 60
+                }
+              },
+              {
+                "op": "ref",
+                "id": "var.member.receives_disability_benefit"
+              }
+            ]
+          }
+        }
+      },
+      "exceptions": [],
+      "sources": [
+        {
+          "source_id": "7cfr-271.2",
+          "citation": "7 CFR 271.2",
+          "term": "Elderly or disabled member",
+          "quote": "Elderly or disabled member means a member of a household who: (1) Is 60 years of age or older; (2) Receives supplemental security income benefits under title XVI of the Social Security Act or disability or blindness payments under titles I, II, X, XIV, or XVI of the Social Security Act; ..."
+        }
+      ],
+      "interpretation": {
+        "status": "needs_review",
+        "note": "Source is a nine-branch disjunction. Branch (1) age>=60 is computed; branches (2)-(9) collapse to one input predicate. This is a deliberate simplification and must be reviewed."
+      }
+    },
+    {
+      "id": "rule.snap.household_has_elderly_or_disabled_member",
+      "kind": "classification",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "when": {
+        "op": "literal",
+        "value": true
+      },
+      "then": {
+        "assign": {
+          "target": "var.household.has_elderly_or_disabled_member",
+          "value": {
+            "op": "any_over",
+            "entity": "household_member",
+            "scope": {
+              "op": "ref",
+              "id": "var.household"
+            },
+            "value": {
+              "op": "ref",
+              "id": "var.member.is_elderly_or_disabled"
+            }
+          }
+        }
+      },
+      "exceptions": [],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(d)(6)(ii)",
+          "quote": "If the household does not contain an elderly or disabled member, as defined in \u00a7 271.2 of this chapter, the shelter deduction cannot exceed the maximum shelter deduction limit established for the area."
+        }
+      ],
+      "interpretation": {
+        "status": "needs_review",
+        "note": "DERIVED term. The regulation tests whether the household 'contains' such a member; the existential is implied, not stated."
+      }
+    },
+    {
+      "id": "rule.snap.gross_monthly_income",
+      "kind": "calculation",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "when": {
+        "op": "literal",
+        "value": true
+      },
+      "then": {
+        "assign": {
+          "target": "var.household.gross_monthly_income",
+          "value": {
+            "op": "add",
+            "args": [
+              {
+                "op": "sum_over",
+                "entity": "household_member",
+                "scope": {
+                  "op": "ref",
+                  "id": "var.household"
+                },
+                "value": {
+                  "op": "ref",
+                  "id": "var.member.earned_income"
+                }
+              },
+              {
+                "op": "sum_over",
+                "entity": "household_member",
+                "scope": {
+                  "op": "ref",
+                  "id": "var.household"
+                },
+                "value": {
+                  "op": "ref",
+                  "id": "var.member.unearned_income"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "exceptions": [],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(b)",
+          "quote": "Household income shall mean all income from whatever source excluding only items specified in paragraph (c) of this section."
+        }
+      ],
+      "interpretation": {
+        "status": "needs_review",
+        "note": "Open vocabulary question 1: exclusions under (c) are assumed already applied to the member-level inputs."
+      }
+    },
+    {
+      "id": "rule.snap.earned_income_total",
+      "kind": "calculation",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "when": {
+        "op": "literal",
+        "value": true
+      },
+      "then": {
+        "assign": {
+          "target": "var.household.earned_income_total",
+          "value": {
+            "op": "sum_over",
+            "entity": "household_member",
+            "scope": {
+              "op": "ref",
+              "id": "var.household"
+            },
+            "value": {
+              "op": "ref",
+              "id": "var.member.earned_income"
+            }
+          }
+        }
+      },
+      "exceptions": [],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(b)(1)",
+          "quote": "Earned income shall include: (i) All wages and salaries of an employee."
+        }
+      ],
+      "interpretation": {
+        "status": "needs_review"
+      }
+    },
+    {
+      "id": "rule.snap.gross_income_test",
+      "kind": "eligibility",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "when": {
+        "op": "literal",
+        "value": true
+      },
+      "then": {
+        "assign": {
+          "target": "var.household.meets_gross_income_test",
+          "value": {
+            "op": "lte",
+            "left": {
+              "op": "ref",
+              "id": "var.household.gross_monthly_income"
+            },
+            "right": {
+              "op": "round",
+              "mode": "up",
+              "to": "1",
+              "arg": {
+                "op": "multiply",
+                "args": [
+                  {
+                    "op": "convert_period",
+                    "from": "year",
+                    "to": "month",
+                    "method": "divide",
+                    "arg": {
+                      "op": "parameter",
+                      "id": "param.snap.fpl_annual",
+                      "args": {
+                        "household_size": {
+                          "op": "ref",
+                          "id": "var.household.size"
+                        },
+                        "jurisdiction": {
+                          "op": "ref",
+                          "id": "var.household.jurisdiction"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "op": "parameter",
+                    "id": "param.snap.gross_income_multiplier",
+                    "args": {}
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "exceptions": [
+        {
+          "id": "exception.snap.gross_test_waived_elderly_disabled",
+          "when": {
+            "op": "ref",
+            "id": "var.household.has_elderly_or_disabled_member"
+          },
+          "effect": "substitute",
+          "substitute": {
+            "assign": {
+              "target": "var.household.meets_gross_income_test",
+              "value": {
+                "op": "literal",
+                "value": true
+              }
+            }
+          },
+          "priority": 100,
+          "sources": [
+            {
+              "source_id": "7cfr-273.9",
+              "citation": "7 CFR 273.9(a)"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(a)(1)",
+          "quote": "The income eligibility standards for the 48 contiguous States and the District of Columbia, Guam and the Virgin Islands shall be 130 percent of the Federal income poverty levels..."
+        }
+      ],
+      "interpretation": {
+        "status": "needs_review",
+        "note": "Substitutive exception. Households with an elderly or disabled member are exempt from the gross income test and screened on net income only."
+      }
+    },
+    {
+      "id": "rule.snap.standard_deduction_computed",
+      "kind": "calculation",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "when": {
+        "op": "literal",
+        "value": true
+      },
+      "then": {
+        "assign": {
+          "target": "var.household.standard_deduction",
+          "value": {
+            "op": "parameter",
+            "id": "param.snap.standard_deduction",
+            "args": {
+              "household_size": {
+                "op": "clamp",
+                "max": {
+                  "op": "literal",
+                  "value": 6
+                },
+                "arg": {
+                  "op": "ref",
+                  "id": "var.household.size"
+                }
+              },
+              "jurisdiction": {
+                "op": "ref",
+                "id": "var.household.jurisdiction"
+              }
+            }
+          }
+        }
+      },
+      "exceptions": [],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(d)(1)(i)",
+          "quote": "For household sizes greater than six, the standard deduction shall be equal to the standard deduction for a six-person household."
+        }
+      ],
+      "interpretation": {
+        "status": "needs_review",
+        "note": "The six-person ceiling is encoded by clamping the lookup index, not the resulting value."
+      }
+    },
+    {
+      "id": "rule.snap.standard_deduction_minimum",
+      "kind": "calculation",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "overrides": [
+        "rule.snap.standard_deduction_computed"
+      ],
+      "when": {
+        "op": "literal",
+        "value": true
+      },
+      "then": {
+        "assign": {
+          "target": "var.household.standard_deduction",
+          "value": {
+            "op": "max",
+            "args": [
+              {
+                "op": "parameter",
+                "id": "param.snap.standard_deduction",
+                "args": {
+                  "household_size": {
+                    "op": "clamp",
+                    "max": {
+                      "op": "literal",
+                      "value": 6
+                    },
+                    "arg": {
+                      "op": "ref",
+                      "id": "var.household.size"
+                    }
+                  },
+                  "jurisdiction": {
+                    "op": "ref",
+                    "id": "var.household.jurisdiction"
+                  }
+                }
+              },
+              {
+                "op": "parameter",
+                "id": "param.snap.standard_deduction_minimum",
+                "args": {
+                  "jurisdiction": {
+                    "op": "ref",
+                    "id": "var.household.jurisdiction"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "exceptions": [],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(d)(1)(iii)",
+          "quote": "Notwithstanding paragraphs (d)(1)(i) and (d)(1)(ii) of this section, the standard deduction ... shall not be less than $144, $246, $203, $289, and $127, respectively."
+        }
+      ],
+      "interpretation": {
+        "status": "needs_review",
+        "note": "Cross-rule override. 'Notwithstanding' is a norm-precedence statement, which rule-local exception priority cannot express."
+      }
+    },
+    {
+      "id": "rule.snap.earned_income_deduction",
+      "kind": "calculation",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "when": {
+        "op": "literal",
+        "value": true
+      },
+      "then": {
+        "assign": {
+          "target": "var.household.earned_income_deduction",
+          "value": {
+            "op": "multiply",
+            "args": [
+              {
+                "op": "ref",
+                "id": "var.household.earned_income_total"
+              },
+              {
+                "op": "parameter",
+                "id": "param.snap.earned_income_deduction_rate",
+                "args": {}
+              }
+            ]
+          }
+        }
+      },
+      "exceptions": [],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(d)(2)",
+          "quote": "Twenty percent of gross earned income."
+        }
+      ],
+      "interpretation": {
+        "status": "needs_review"
+      }
+    },
+    {
+      "id": "rule.snap.income_after_other_deductions",
+      "kind": "calculation",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "when": {
+        "op": "literal",
+        "value": true
+      },
+      "then": {
+        "assign": {
+          "target": "var.household.income_after_other_deductions",
+          "value": {
+            "op": "max",
+            "args": [
+              {
+                "op": "literal",
+                "value": 0
+              },
+              {
+                "op": "subtract",
+                "args": [
+                  {
+                    "op": "ref",
+                    "id": "var.household.gross_monthly_income"
+                  },
+                  {
+                    "op": "ref",
+                    "id": "var.household.standard_deduction"
+                  },
+                  {
+                    "op": "ref",
+                    "id": "var.household.earned_income_deduction"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "exceptions": [],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(d)(6)(ii)",
+          "quote": "Monthly shelter expenses in excess of 50 percent of the household's income after all other deductions in paragraphs (d)(1) through (d)(5) of this section have been allowed."
+        }
+      ],
+      "interpretation": {
+        "status": "needs_review",
+        "note": "Deduction ordering is semantic: excess shelter is computed on income already reduced by (d)(1)-(d)(5). v0.1 implements the standard and earned-income deductions only."
+      }
+    },
+    {
+      "id": "rule.snap.excess_shelter_deduction",
+      "kind": "calculation",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "when": {
+        "op": "literal",
+        "value": true
+      },
+      "then": {
+        "assign": {
+          "target": "var.household.excess_shelter_deduction",
+          "value": {
+            "op": "max",
+            "args": [
+              {
+                "op": "literal",
+                "value": 0
+              },
+              {
+                "op": "subtract",
+                "args": [
+                  {
+                    "op": "ref",
+                    "id": "var.household.shelter_expenses"
+                  },
+                  {
+                    "op": "multiply",
+                    "args": [
+                      {
+                        "op": "ref",
+                        "id": "var.household.income_after_other_deductions"
+                      },
+                      {
+                        "op": "parameter",
+                        "id": "param.snap.shelter_income_share",
+                        "args": {}
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "exceptions": [
+        {
+          "id": "exception.snap.shelter_cap_applies",
+          "when": {
+            "op": "not",
+            "arg": {
+              "op": "ref",
+              "id": "var.household.has_elderly_or_disabled_member"
+            }
+          },
+          "effect": "substitute",
+          "substitute": {
+            "assign": {
+              "target": "var.household.excess_shelter_deduction",
+              "value": {
+                "op": "min",
+                "args": [
+                  {
+                    "op": "max",
+                    "args": [
+                      {
+                        "op": "literal",
+                        "value": 0
+                      },
+                      {
+                        "op": "subtract",
+                        "args": [
+                          {
+                            "op": "ref",
+                            "id": "var.household.shelter_expenses"
+                          },
+                          {
+                            "op": "multiply",
+                            "args": [
+                              {
+                                "op": "ref",
+                                "id": "var.household.income_after_other_deductions"
+                              },
+                              {
+                                "op": "parameter",
+                                "id": "param.snap.shelter_income_share",
+                                "args": {}
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "op": "parameter",
+                    "id": "param.snap.shelter_cap",
+                    "args": {
+                      "jurisdiction": {
+                        "op": "ref",
+                        "id": "var.household.jurisdiction"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "priority": 100,
+          "sources": [
+            {
+              "source_id": "7cfr-273.9",
+              "citation": "7 CFR 273.9(d)(6)(ii)",
+              "quote": "If the household does not contain an elderly or disabled member, as defined in \u00a7 271.2 of this chapter, the shelter deduction cannot exceed the maximum shelter deduction limit established for the area."
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(d)(6)(ii)",
+          "quote": "Monthly shelter expenses in excess of 50 percent of the household's income after all other deductions in paragraphs (d)(1) through (d)(5) of this section have been allowed."
+        }
+      ],
+      "interpretation": {
+        "status": "needs_review",
+        "note": "The canonical substitutive exception: the cap applies only where no elderly or disabled member is present."
+      }
+    },
+    {
+      "id": "rule.snap.net_monthly_income",
+      "kind": "calculation",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "when": {
+        "op": "literal",
+        "value": true
+      },
+      "then": {
+        "assign": {
+          "target": "var.household.net_monthly_income",
+          "value": {
+            "op": "max",
+            "args": [
+              {
+                "op": "literal",
+                "value": 0
+              },
+              {
+                "op": "subtract",
+                "args": [
+                  {
+                    "op": "ref",
+                    "id": "var.household.income_after_other_deductions"
+                  },
+                  {
+                    "op": "ref",
+                    "id": "var.household.excess_shelter_deduction"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "exceptions": [],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(d)",
+          "quote": "Deductions from income listed in paragraph (d) of this section shall be subtracted from the household's total monthly income."
+        }
+      ],
+      "interpretation": {
+        "status": "needs_review"
+      }
+    },
+    {
+      "id": "rule.snap.net_income_test",
+      "kind": "eligibility",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "when": {
+        "op": "literal",
+        "value": true
+      },
+      "then": {
+        "assign": {
+          "target": "var.household.meets_net_income_test",
+          "value": {
+            "op": "lte",
+            "left": {
+              "op": "ref",
+              "id": "var.household.net_monthly_income"
+            },
+            "right": {
+              "op": "round",
+              "mode": "up",
+              "to": "1",
+              "arg": {
+                "op": "convert_period",
+                "from": "year",
+                "to": "month",
+                "method": "divide",
+                "arg": {
+                  "op": "parameter",
+                  "id": "param.snap.fpl_annual",
+                  "args": {
+                    "household_size": {
+                      "op": "ref",
+                      "id": "var.household.size"
+                    },
+                    "jurisdiction": {
+                      "op": "ref",
+                      "id": "var.household.jurisdiction"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "exceptions": [],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(a)(2)",
+          "quote": "The income eligibility standards for the 48 contiguous States and the District of Columbia, Guam and the Virgin Islands shall be the Federal income poverty levels..."
+        }
+      ],
+      "interpretation": {
+        "status": "needs_review"
+      }
+    },
+    {
+      "id": "rule.snap.income_eligible",
+      "kind": "eligibility",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "when": {
+        "op": "literal",
+        "value": true
+      },
+      "then": {
+        "assign": {
+          "target": "var.household.is_income_eligible",
+          "value": {
+            "op": "all",
+            "args": [
+              {
+                "op": "ref",
+                "id": "var.household.meets_gross_income_test"
+              },
+              {
+                "op": "ref",
+                "id": "var.household.meets_net_income_test"
+              }
+            ]
+          }
+        }
+      },
+      "exceptions": [],
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(a)",
+          "quote": "Households which contain a member who is elderly or disabled shall meet the net income eligibility standards; all other households shall meet both the net and gross income eligibility standards."
+        }
+      ],
+      "interpretation": {
+        "status": "needs_review"
+      }
+    },
+    {
+      "id": "rule.snap.benefit_reduction",
+      "kind": "calculation",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "when": {
+        "op": "literal",
+        "value": true
+      },
+      "then": {
+        "assign": {
+          "target": "var.household.benefit_reduction",
+          "value": {
+            "op": "round",
+            "mode": "up",
+            "to": "1",
+            "arg": {
+              "op": "multiply",
+              "args": [
+                {
+                  "op": "ref",
+                  "id": "var.household.net_monthly_income"
+                },
+                {
+                  "op": "parameter",
+                  "id": "param.snap.benefit_reduction_rate",
+                  "args": {}
+                }
+              ]
+            }
+          }
+        }
+      },
+      "exceptions": [],
+      "sources": [
+        {
+          "source_id": "7cfr-273.10",
+          "citation": "7 CFR 273.10(e)(2)(ii)(A)",
+          "quote": "If 30 percent of the household's net income ends in cents, the State agency shall round the 30 percent of net income up to the nearest higher dollar"
+        }
+      ],
+      "interpretation": {
+        "status": "needs_review",
+        "note": "The regulation offers the State agency a CHOICE of two rounding methods. This encodes method (1), rounding the reduction up. Method (2) rounds the allotment down instead and yields different amounts. A jurisdiction parameter should select between them; v0.1 hard-codes method (1) and records the choice here."
+      }
+    },
+    {
+      "id": "rule.snap.allotment",
+      "kind": "calculation",
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "when": {
+        "op": "ref",
+        "id": "var.household.is_income_eligible"
+      },
+      "then": {
+        "assign": {
+          "target": "var.household.allotment",
+          "value": {
+            "op": "max",
+            "args": [
+              {
+                "op": "literal",
+                "value": 0
+              },
+              {
+                "op": "subtract",
+                "args": [
+                  {
+                    "op": "parameter",
+                    "id": "param.snap.max_allotment",
+                    "args": {
+                      "household_size": {
+                        "op": "ref",
+                        "id": "var.household.size"
+                      },
+                      "jurisdiction": {
+                        "op": "ref",
+                        "id": "var.household.jurisdiction"
+                      }
+                    }
+                  },
+                  {
+                    "op": "ref",
+                    "id": "var.household.benefit_reduction"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "exceptions": [
+        {
+          "id": "exception.snap.minimum_benefit_small_household",
+          "when": {
+            "op": "lte",
+            "left": {
+              "op": "ref",
+              "id": "var.household.size"
+            },
+            "right": {
+              "op": "literal",
+              "value": 2
+            }
+          },
+          "effect": "substitute",
+          "substitute": {
+            "assign": {
+              "target": "var.household.allotment",
+              "value": {
+                "op": "max",
+                "args": [
+                  {
+                    "op": "parameter",
+                    "id": "param.snap.minimum_benefit",
+                    "args": {
+                      "jurisdiction": {
+                        "op": "ref",
+                        "id": "var.household.jurisdiction"
+                      }
+                    }
+                  },
+                  {
+                    "op": "subtract",
+                    "args": [
+                      {
+                        "op": "parameter",
+                        "id": "param.snap.max_allotment",
+                        "args": {
+                          "household_size": {
+                            "op": "ref",
+                            "id": "var.household.size"
+                          },
+                          "jurisdiction": {
+                            "op": "ref",
+                            "id": "var.household.jurisdiction"
+                          }
+                        }
+                      },
+                      {
+                        "op": "ref",
+                        "id": "var.household.benefit_reduction"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "priority": 100,
+          "sources": [
+            {
+              "source_id": "7cfr-273.10",
+              "citation": "7 CFR 273.10(e)(2)(ii)(C)",
+              "quote": "Except during an initial month, all eligible one-person and two-person households shall receive minimum monthly allotments equal to the minimum benefit."
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "source_id": "7cfr-273.10",
+          "citation": "7 CFR 273.10(e)(2)(ii)(A)",
+          "quote": "the household's monthly allotment shall be equal to the maximum SNAP allotment for the household's size reduced by 30 percent of the household's net monthly income"
+        }
+      ],
+      "interpretation": {
+        "status": "needs_review",
+        "note": "Guarded on eligibility, so an ineligible household receives no allotment determination rather than a zero. Initial-month proration and the $10 initial-month rule at (e)(2)(ii)(B) are out of v0.1 scope. The minimum benefit is itself at or above zero, so the substitution needs no separate zero floor; the redundant one was removed after mutation testing showed it could never change a result."
+      }
+    }
+  ],
+  "ambiguities": [
+    {
+      "id": "ambiguity.snap.gross_income_exclusions",
+      "type": "scope",
+      "blocking": false,
+      "affects": [
+        "rule.snap.gross_monthly_income"
+      ],
+      "question": "Does gross monthly income mean income before or after the exclusions listed at 273.9(c)?",
+      "interpretations": [
+        {
+          "id": "before_exclusions",
+          "description": "Sum all income, then subtract (c) exclusions as a separate step."
+        },
+        {
+          "id": "after_exclusions",
+          "description": "Member-level income inputs are already net of (c) exclusions."
+        }
+      ],
+      "resolution": {
+        "chosen": "after_exclusions",
+        "by": "fixture-author",
+        "rationale": "The regulation reads 'all income from whatever source excluding only items specified in paragraph (c)', which defines income as already net of exclusions. Recorded so a reviewer can overturn it."
+      },
+      "sources": [
+        {
+          "source_id": "7cfr-273.9",
+          "citation": "7 CFR 273.9(b)"
+        }
+      ]
+    }
+  ]
+}

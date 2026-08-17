@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}RuleWeaver review{% endblock %}</title>
+<style>
+  /* Deliberately plain. A reviewer comparing a statute to a rule needs legibility and
+     stable layout, not visual interest — and no build step keeps the deploy to one
+     container. */
+  :root {
+    --bg: #fbfaf8; --fg: #1c1b1a; --muted: #6b6864; --line: #ddd9d3;
+    --panel: #ffffff; --accent: #1a4f8a;
+    --ok: #1d6f42; --warn: #8a5a12; --bad: #9b2c2c; --stale: #6b4fa0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17181a; --fg: #e8e6e3; --muted: #a5a29d; --line: #33353a;
+      --panel: #1f2124; --accent: #7fb0ea;
+      --ok: #5cc98a; --warn: #d9a850; --bad: #e08585; --stale: #b39ae0;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+  }
+  header {
+    display: flex; align-items: baseline; gap: 1.25rem;
+    padding: .85rem 1.5rem; border-bottom: 1px solid var(--line); background: var(--panel);
+  }
+  header h1 { font-size: 1rem; margin: 0; font-weight: 600; letter-spacing: .01em; }
+  header nav a { color: var(--muted); text-decoration: none; margin-right: 1rem; }
+  header nav a:hover { color: var(--accent); }
+  main { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+  a { color: var(--accent); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: .55rem .7rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .85em; }
+  pre {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: .8rem; overflow-x: auto; margin: 0;
+  }
+  .status { font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  .status-approved { color: var(--ok); }
+  .status-rejected { color: var(--bad); }
+  .status-stale { color: var(--stale); }
+  .status-ambiguous, .status-human_judgment_required { color: var(--warn); }
+  .status-unreviewed { color: var(--muted); }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  @media (max-width: 950px) { .split { grid-template-columns: 1fr; } }
+  .panel {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; padding: 1rem; margin-bottom: 1rem;
+  }
+  .panel h2 { margin: 0 0 .7rem; font-size: .8rem; text-transform: uppercase;
+              letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+  blockquote {
+    margin: 0; padding: .7rem .95rem; border-left: 3px solid var(--accent);
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+  }
+  .diag { padding: .45rem .7rem; border-left: 3px solid var(--warn); margin-bottom: .45rem; }
+  .diag-error, .diag-blocking { border-left-color: var(--bad); }
+  label { display: block; margin: .75rem 0 .25rem; font-weight: 600; font-size: .85rem; }
+  select, textarea, button {
+    font: inherit; padding: .5rem .6rem; border: 1px solid var(--line);
+    border-radius: 6px; background: var(--bg); color: var(--fg); width: 100%;
+  }
+  button {
+    background: var(--accent); color: #fff; border: none; font-weight: 600;
+    cursor: pointer; margin-top: .9rem;
+  }
+  .muted { color: var(--muted); }
+  .warning {
+    border-left: 3px solid var(--bad); padding: .6rem .9rem; margin-bottom: .6rem;
+    background: color-mix(in srgb, var(--bad) 8%, transparent);
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>RuleWeaver review</h1>
+  <nav>
+    <a href="/">Queue</a>
+    <a href="/metrics">Review health</a>
+  </nav>
+</header>
+<main>{% block content %}{% endblock %}</main>
+</body>
+</html>
