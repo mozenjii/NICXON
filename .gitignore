@@ -33,6 +33,14 @@ desktop.ini
 .vscode/*
 !.vscode/extensions.json
 
+# ─── Review application runtime state ────────────────────────────────
+# The audit database is runtime state, not source. It also contains real
+# reviewer decisions once deployed, which do not belong in a public repository.
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
 # ─── Python build output ─────────────────────────────────────────────
 __pycache__/
 *.py[cod]
