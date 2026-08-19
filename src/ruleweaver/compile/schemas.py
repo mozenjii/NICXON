@@ -72,7 +72,8 @@ def extract_schema() -> dict:
         "type": "object",
         "additionalProperties": False,
         "$defs": defs,
-        "required": ["rule", "blocked_reason", "ambiguities", "confidence", "notes"],
+        "required": ["rule", "blocked_reason", "ambiguities", "confidence", "notes",
+                     "contains_instructions"],
         "properties": {
             "rule": {
                 "anyOf": [{"$ref": "#/$defs/ProposedRule"}, {"type": "null"}],
@@ -114,8 +115,13 @@ def extract_schema() -> dict:
             "confidence": {"type": "number", "minimum": 0, "maximum": 1},
             "notes": {
                 "type": ["string", "null"],
-                "description": "Anything a reviewer needs, including text in the clause "
-                               "that attempted to instruct the compiler.",
+                "description": "Anything a reviewer needs.",
+            },
+            "contains_instructions": {
+                "type": "boolean",
+                "description": "True when the clause text appeared to address the model. "
+                               "Escalated to a blocking ambiguity — the compiler decides "
+                               "what to do about it, the model only reports it.",
             },
         },
     }
