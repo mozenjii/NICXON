@@ -187,3 +187,54 @@ class Hierarchy:
         kind = candidates[0]
         self.levels.append(Level(kind, marker, ordinal(marker, kind) or 1))
         return [lv.marker for lv in self.levels], True
+
+
+    def clone(self) -> "Hierarchy":
+        """A copy, for trial placements that must not mutate the running state."""
+        other = Hierarchy()
+        other.levels = [Level(lv.kind, lv.marker, lv.index) for lv in self.levels]
+        return other
+
+    def accepts(self, markers: list[str]) -> bool:
+        """Whether this sequence would place cleanly, without salvage. Non-mutating."""
+        trial = self.clone()
+        return all(not trial.place(m)[1] for m in markers)
+
+
+# A run-in marker: the CFR sets a subsection heading and its first child in one paragraph,
+# separated by an em dash — "(a) Month of application—(1) Determination of eligibility" —
+# and starts the next level after the heading's full stop. Both forms are matched; whether
+# a match is really a new clause is decided by the hierarchy, not by the regex.
+RUNIN_RE = re.compile(r"(?:[—–-]|(?<=\.)\s)\(([A-Za-z0-9]{1,4})\)\s")
+
+
+def split_runin(text: str, hierarchy: "Hierarchy") -> list[str]:
+    """Split a paragraph that packs several clause levels into one.
+
+    Candidate boundaries come from `RUNIN_RE`; each is accepted only if the resulting
+    marker sequence places cleanly in the hierarchy. That test is what keeps ordinary prose
+    intact: a cross-reference like "as defined in § 273.2(j)(2)" produces a marker the
+    hierarchy will not accept at that position, so the sentence is left whole.
+    """
+    first = MARKER_RE.match(text)
+    if not first:
+        return [text]
+
+    accepted: list[str] = [first.group(1)]
+    cuts: list[int] = []
+    for match in RUNIN_RE.finditer(text, first.end()):
+        if hierarchy.accepts(accepted + [match.group(1)]):
+            accepted.append(match.group(1))
+            # Cut at the parenthesis, dropping the dash or space that introduced it.
+            cuts.append(match.start(0) + match.group(0).index("("))
+
+    if not cuts:
+        return [text]
+
+    segments = []
+    bounds = [0, *cuts, len(text)]
+    for start, end in zip(bounds, bounds[1:]):
+        segment = text[start:end].strip().rstrip("—–-").strip()
+        if segment:
+            segments.append(segment)
+    return segments
