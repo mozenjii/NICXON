@@ -25,8 +25,8 @@ from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
+from ..approval import rule_digest, source_digest
 from ..ir.rules import RulePackage
-from ..models.base import digest
 from ..verify import validate
 from .adversarial import AdversarialQueue
 from .decisions import Decision, ReviewEvent, Status
@@ -61,11 +61,21 @@ class InsecureReviewerResolver:
         return reviewer
 
 
-def _rule_hash(package: RulePackage, rule_id: str) -> str:
+def _rule(package: RulePackage, rule_id: str):
     rule = package.rule(rule_id)
     if rule is None:
         raise HTTPException(404, f"unknown rule: {rule_id}")
-    return digest(rule.model_dump(mode="json", by_alias=True))
+    return rule
+
+
+def _rule_hash(package: RulePackage, rule_id: str) -> str:
+    """The digest the runtime gate will check this approval against.
+
+    Delegated to `approval` rather than computed here. The reviewer records a hash and the
+    gate recomputes it; if the two ever disagreed, every approval would read as stale — or
+    worse, a stale one would read as current.
+    """
+    return rule_digest(_rule(package, rule_id))
 
 
 def _source_hash(package: RulePackage, rule_id: str) -> str:
@@ -75,10 +85,7 @@ def _source_hash(package: RulePackage, rule_id: str) -> str:
     clause it rests on is re-fetched and differs — which is the case that matters and the
     one nobody remembers to check.
     """
-    rule = package.rule(rule_id)
-    if rule is None:
-        raise HTTPException(404, f"unknown rule: {rule_id}")
-    return digest([s.model_dump(mode="json") for s in rule.sources])
+    return source_digest(_rule(package, rule_id))
 
 
 def create_app(
