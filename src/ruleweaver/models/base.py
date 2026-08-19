@@ -15,17 +15,12 @@ and docs/06_VERIFICATION_SAFETY.md requires that it can be.
 
 from __future__ import annotations
 
-import hashlib
-import json
 from dataclasses import dataclass, field
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
-
-def digest(value: Any) -> str:
-    """Stable content hash. Used to pin exactly what went in and what came out."""
-    if not isinstance(value, str):
-        value = json.dumps(value, sort_keys=True, ensure_ascii=False)
-    return "sha256:" + hashlib.sha256(value.encode("utf-8")).hexdigest()
+# Re-exported, not redefined. The approval gate hashes rules with the same function that
+# pins model inputs, and two implementations would eventually disagree.
+from ..hashing import digest
 
 
 @dataclass(frozen=True)
