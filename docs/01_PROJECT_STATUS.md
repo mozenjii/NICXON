@@ -1,7 +1,8 @@
 # 01 — Project Status
 
-**Status date:** 2026-08-17  
-**Phase:** v0.1 deterministic core built — M0 closed, M1 validators complete
+**Status date:** 2026-08-20  
+**Phase:** the pipeline runs end to end — verified source, extraction, review gate,
+deterministic evaluation, OpenFisca export
 
 > **2026-08-17 review.** The spec pack was reviewed against verified external research.
 > Architecture held; scope and three assumptions did not. See ADR-017 to ADR-022 in
@@ -68,16 +69,16 @@ Checked items are built and covered by tests. Everything unchecked is genuinely 
 
 - [x] Python package bootstrapped.
 - [x] CI configured.
-- [ ] code quality tooling configured.
+- [x] code quality tooling configured (ruff, mypy; both clean).
 - [x] diagnostics framework defined.
 - [x] serialization/version strategy implemented.
 
 ### Source model
 
-- [ ] source document object.
-- [ ] hierarchy/section model.
+- [x] source document object.
+- [x] hierarchy/section model — reconstructed from CFR paragraph markers.
 - [x] source spans.
-- [x] source hashes.
+- [x] source hashes — verified against the manifest on every load.
 - [ ] cross-reference model.
 - [x] effective-version model.
 
@@ -116,16 +117,17 @@ Checked items are built and covered by tests. Everything unchecked is genuinely 
 
 ### Ingestion/compiler
 
-- [ ] plain-text/HTML ingestion.
+- [x] eCFR XML ingestion — 468 clauses, 0.9% with an uncertain position.
 - [ ] PDF ingestion.
 - [ ] Akoma Ntoso ingestion.
-- [ ] clause segmentation.
-- [ ] definition extraction.
+- [x] clause segmentation — six categories, only `computable` is extracted.
+- [x] definition extraction — definitions are addressable by term.
 - [ ] parameter extraction.
-- [ ] rule extraction.
+- [x] rule extraction — proposals are checked against the source and forced to
+      `needs_review`.
 - [ ] cross-reference linking.
-- [ ] ambiguity proposal.
-- [ ] prompt/version registry.
+- [x] ambiguity proposal — including injection findings escalated as blocking.
+- [x] prompt/version registry — assets on disk, hashed into every run record.
 - [x] provider-neutral model interface.
 
 ### Review
@@ -135,14 +137,20 @@ Checked items are built and covered by tests. Everything unchecked is genuinely 
 - [x] source/rule side-by-side UI.
 - [x] edit/reject/approve UX.
 - [x] audit log.
+- [x] authenticated reviewer identity — signed tokens or a trusted proxy; the
+      application refuses to start with neither.
+- [x] approval enforced at execution — the evaluator will not run unapproved rules.
 
 ### Adapters
 
-- [ ] OpenFisca mapping specification validated with examples.
-- [ ] OpenFisca code generator.
+- [x] OpenFisca mapping specification validated with examples — all 15 fixture rules
+      lower.
+- [x] OpenFisca code generator — refuses unapproved rules; reports the four-state gap.
 - [ ] OpenFisca test exporter.
-- [ ] LegalRuleML export.
-- [ ] Catala export.
+- [ ] equivalence verified by running the generated package under OpenFisca. **Not done.**
+      The adapter's output is checked structurally and parses; nobody has executed it.
+- [ ] LegalRuleML export — dropped, see ADR-019.
+- [ ] Catala export — reference only, see ADR-019.
 
 ### Version change analysis
 
@@ -186,21 +194,28 @@ Keep these up to date once implementation starts:
 
 | Indicator | Current |
 |---|---|
-| Core package exists | Yes — `src/ruleweaver/{ir,runtime}` |
+| Core package exists | Yes — `src/ruleweaver/{ir,runtime,verify,testgen,diff,ingest,compile,adapters,review}` |
 | IR schema version | 0.1.0 |
-| Golden policy corpora | 1 (SNAP, 15 rules from 7 CFR 273.9 and 273.10) |
+| Source corpus | 3 sections, 468 clauses, sha256-verified on every load |
+| Clause hierarchy certainty | 464/468 confident; 4 flagged (0.9%) |
+| Golden policy corpora | 1 (SNAP, 15 rules from 7 CFR 271.2, 273.9 and 273.10) |
+| Provenance verified against source | **16/16 spans resolve to verbatim clause text** |
 | Deterministic rule features implemented | 12 expression nodes, exceptions, overrides, 4-state values, trace |
-| Tests | 178 passing (`pytest`) |
+| Tests | 370 passing (`pytest`) |
 | Mutation score | **22/22 caught (100%)** |
-| Validators implemented | 16, stable `RWxxxx` codes |
+| Lint / type check | ruff clean, mypy clean (47 files) |
+| Validators implemented | 17, stable `RWxxxx` codes |
 | Test generators | boundary + date transition |
 | Amendment impact | semantic diff + dependency closure + outcome comparison |
-| CLI | `validate`, `evaluate`, `boundaries`, `diff`, `review`, `schema` |
+| CLI | `validate`, `evaluate`, `boundaries`, `diff`, `ingest`, `extract`, `approvals`, `export`, `review`, `token`, `schema` |
 | Model interface | Provider-neutral; Claude + GPT adapters; injection guard |
+| LLM compiler passes implemented | **2 — segmentation and rule extraction** |
+| Prompt assets | 2, versioned on disk and hashed into every run record |
+| Approval enforced at execution | Yes — `ruleweaver evaluate --require-approval` |
+| Reviewer identity | Signed tokens or trusted proxy; fails closed with neither |
 | Review gate | Hash-chained append-only log, derived status, seeded-error catch rate |
 | Review application | FastAPI + Jinja, one container; SQLite or PostgreSQL |
-| LLM compiler passes implemented | 0 — the interface exists; no extraction pass yet |
-| Approved adapter targets | 0 built, 1 planned (OpenFisca, as a code generator) |
+| Approved adapter targets | **1 built (OpenFisca, code generator), equivalence unverified** |
 | External contributors | 0 |
 | Public benchmark release | No |
 | First external pilot | No |
@@ -227,12 +242,28 @@ and each of the ten survivors was a real hole: the suite could not detect a dele
 final decision, and never exercised four floor guards. Those are now closed and the score
 is 17/17.
 
-### Next milestone — M1: validators
+### What ingestion found, 2026-08-20
 
-Deterministic checks that reject a bad package before it can be evaluated:
-reference resolution, cycle detection, temporal consistency, unreachable-rule detection
-(the mutation harness already surfaced one unconditionally overridden rule), and
-provenance completeness.
+Two things that were wrong the whole time and that nothing could have caught without the
+source snapshots being parsed and checked:
+
+**Fourteen of the fifteen rules quoted text that is not in the clause they cite.** The
+quotes were paraphrases, truncations, and composites spliced across paragraphs with an
+ellipsis. Every one now carries contiguous text lifted from the cited clause, `RW1001`
+enforces it, and a test asserts all 16 spans resolve.
+
+**Every recorded source digest failed on a Windows checkout.** `core.autocrlf` rewrote the
+line endings of the snapshots, so the manifest could not verify against the files on disk.
+`.gitattributes` now pins them. The check is what made a silent corruption visible, which
+is the argument for running it on every load rather than trusting the checkout.
+
+### Next milestone — equivalence evidence
+
+The OpenFisca export is generated and parses. Nobody has run it. Until the generated
+package executes the same scenarios under OpenFisca and the results are compared against
+the deterministic evaluator, "RuleWeaver exports to OpenFisca" is a structural claim, not
+a behavioural one. That comparison is the next thing worth building, and it needs the
+published FNS tables the fixture currently supplies as scenario overrides.
 
 ## Known risks already identified
 
