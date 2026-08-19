@@ -3,9 +3,10 @@
     ruleweaver validate   examples/snap/rules.json
     ruleweaver evaluate   examples/snap/rules.json examples/snap/scenarios/baseline.json
     ruleweaver boundaries examples/snap/rules.json examples/snap/scenarios/baseline.json
+    ruleweaver approvals  examples/snap/rules.json
     ruleweaver schema
 
-Exit codes: 0 success, 1 validation failed, 2 bad usage.
+Exit codes: 0 success, 1 validation or approval failed, 2 bad usage.
 """
 
 from __future__ import annotations
@@ -17,6 +18,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from . import InvalidPackage, load
+from .approval import approved_subset, check
 from .ir import RulePackage
 from .runtime import Context, Evaluator, ParameterTable
 from .diff import analyse, compare
@@ -53,6 +55,32 @@ def _scenario(path: Path) -> tuple[Context, dict]:
     return ctx, overrides
 
 
+def _review_log(database: str | None):
+    """The review log, or an explanation of why it cannot be read.
+
+    SQLAlchemy lives in the `review` extra, so a deployment that only executes rules may
+    not have it. That is a legitimate configuration — but it is not a licence to skip the
+    gate, so this reports the missing dependency rather than defaulting to "approved".
+    """
+    try:
+        from .review.store import ReviewStore, build_engine
+    except ImportError as exc:
+        print(f"cannot read the review log: {exc}", file=sys.stderr)
+        print('  pip install "ruleweaver[review]"', file=sys.stderr)
+        raise SystemExit(1)
+
+    try:
+        return ReviewStore(build_engine(database)).load_log()
+    except Exception as exc:
+        # An unreachable log is not an empty log. Failing here with a readable message
+        # beats a driver traceback, and beats the alternative of treating "no approvals
+        # found" as "no approvals needed".
+        print(f"cannot open the review log: {exc.__class__.__name__}: {exc}",
+              file=sys.stderr)
+        print("  the gate cannot be evaluated, so nothing was executed", file=sys.stderr)
+        raise SystemExit(1)
+
+
 def _load_or_exit(path: str, *, verify: bool) -> RulePackage:
     try:
         return load(path, verify=verify)
@@ -76,6 +104,21 @@ def cmd_validate(args) -> int:
 
 def cmd_evaluate(args) -> int:
     package = _load_or_exit(args.package, verify=not args.no_verify)
+
+    if args.require_approval:
+        subset, report = approved_subset(package, _review_log(args.database))
+        if not report.ok:
+            print(f"approval gate: {report}", file=sys.stderr)
+            if not args.partial:
+                print("nothing was evaluated. Review the rules above, or pass "
+                      "--partial to evaluate the approved subset and read "
+                      "unknown as 'no approved rule decides this'.",
+                      file=sys.stderr)
+                return 1
+            print("evaluating the approved subset — determinations resting on "
+                  "the rules above will be unknown", file=sys.stderr)
+        package = subset
+
     ctx, overrides = _scenario(Path(args.scenario))
     Evaluator(package, ParameterTable(package, overrides=overrides)).run(ctx)
 
@@ -127,6 +170,23 @@ def cmd_diff(args) -> int:
     return 0
 
 
+def cmd_approvals(args) -> int:
+    """Report which rules may execute, and why the rest may not."""
+    package = _load_or_exit(args.package, verify=not args.no_verify)
+    log = _review_log(args.database)
+    report = check(package, log)
+
+    print(f"{args.package}")
+    print(report)
+    if report.blocked:
+        print()
+        for rule_id in sorted(report.blocked):
+            latest = log.latest_for(rule_id)
+            who = f"  last: {latest.reviewer} {latest.decision.value}" if latest else ""
+            print(f"  {report.blocked[rule_id].value:28} {rule_id}{who}")
+    return 0 if report.ok else 1
+
+
 def cmd_review(args) -> int:
     """Serve the reviewer application."""
     try:
@@ -167,8 +227,20 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("package")
     p.add_argument("scenario")
     p.add_argument("--trace", action="store_true", help="show which rule produced each value")
+    p.add_argument("--require-approval", action="store_true",
+                   help="refuse to execute rules that have not passed human review")
+    p.add_argument("--partial", action="store_true",
+                   help="with --require-approval, evaluate the approved subset anyway")
+    p.add_argument("--database", default=None, help="review log to read approvals from")
     p.add_argument("--no-verify", action="store_true", help="skip validation (testing only)")
     p.set_defaults(func=cmd_evaluate)
+
+    p = sub.add_parser("approvals", help="report which rules have passed human review")
+    p.add_argument("package")
+    p.add_argument("--database", default=None,
+                   help="SQLAlchemy URL; defaults to RULEWEAVER_DATABASE_URL or local SQLite")
+    p.add_argument("--no-verify", action="store_true")
+    p.set_defaults(func=cmd_approvals)
 
     p = sub.add_parser("boundaries", help="generate boundary cases around every threshold")
     p.add_argument("package")
