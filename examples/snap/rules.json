@@ -345,7 +345,7 @@
           "source_id": "7cfr-271.2",
           "citation": "7 CFR 271.2",
           "term": "Elderly or disabled member",
-          "quote": "Elderly or disabled member means a member of a household who: (1) Is 60 years of age or older; (2) Receives supplemental security income benefits under title XVI of the Social Security Act or disability or blindness payments under titles I, II, X, XIV, or XVI of the Social Security Act; ..."
+          "quote": "Elderly or disabled member means a member of a household who: (1) Is 60 years of age or older;"
         }
       ],
       "interpretation": {
@@ -384,7 +384,7 @@
         {
           "source_id": "7cfr-273.9",
           "citation": "7 CFR 273.9(d)(6)(ii)",
-          "quote": "If the household does not contain an elderly or disabled member, as defined in \u00a7 271.2 of this chapter, the shelter deduction cannot exceed the maximum shelter deduction limit established for the area."
+          "quote": "If the household does not contain an elderly or disabled member, as defined in § 271.2 of this chapter, the shelter deduction cannot exceed the maximum shelter deduction limit established for the area."
         }
       ],
       "interpretation": {
@@ -572,7 +572,7 @@
         {
           "source_id": "7cfr-273.9",
           "citation": "7 CFR 273.9(a)(1)",
-          "quote": "The income eligibility standards for the 48 contiguous States and the District of Columbia, Guam and the Virgin Islands shall be 130 percent of the Federal income poverty levels..."
+          "quote": "The income eligibility standards for the 48 contiguous States and the District of Columbia, Guam and the Virgin Islands shall be 130 percent of the Federal income poverty levels for the 48 contiguous States and the District of Columbia."
         }
       ],
       "interpretation": {
@@ -686,7 +686,7 @@
         {
           "source_id": "7cfr-273.9",
           "citation": "7 CFR 273.9(d)(1)(iii)",
-          "quote": "Notwithstanding paragraphs (d)(1)(i) and (d)(1)(ii) of this section, the standard deduction ... shall not be less than $144, $246, $203, $289, and $127, respectively."
+          "quote": "Notwithstanding paragraphs (d)(1)(i) and (d)(1)(ii) of this section, the standard deduction for FY 2009 for each household in the 48 States and the District of Columbia, Alaska, Hawaii, Guam and the U.S. Virgin Islands shall not be less than $144, $246, $203, $289, and $127, respectively."
         }
       ],
       "interpretation": {
@@ -727,7 +727,7 @@
         {
           "source_id": "7cfr-273.9",
           "citation": "7 CFR 273.9(d)(2)",
-          "quote": "Twenty percent of gross earned income."
+          "quote": "Twenty percent of gross earned income as defined in paragraph (b)(1) of this section."
         }
       ],
       "interpretation": {
@@ -901,7 +901,7 @@
             {
               "source_id": "7cfr-273.9",
               "citation": "7 CFR 273.9(d)(6)(ii)",
-              "quote": "If the household does not contain an elderly or disabled member, as defined in \u00a7 271.2 of this chapter, the shelter deduction cannot exceed the maximum shelter deduction limit established for the area."
+              "quote": "If the household does not contain an elderly or disabled member, as defined in § 271.2 of this chapter, the shelter deduction cannot exceed the maximum shelter deduction limit established for the area."
             }
           ]
         }
@@ -959,7 +959,7 @@
         {
           "source_id": "7cfr-273.9",
           "citation": "7 CFR 273.9(d)",
-          "quote": "Deductions from income listed in paragraph (d) of this section shall be subtracted from the household's total monthly income."
+          "quote": "Deductions shall be allowed only for the following household expenses:"
         }
       ],
       "interpretation": {
@@ -1017,7 +1017,7 @@
         {
           "source_id": "7cfr-273.9",
           "citation": "7 CFR 273.9(a)(2)",
-          "quote": "The income eligibility standards for the 48 contiguous States and the District of Columbia, Guam and the Virgin Islands shall be the Federal income poverty levels..."
+          "quote": "The income eligibility standards for the 48 contiguous States and the District of Columbia, Guam and the Virgin Islands shall be the Federal income poverty levels for the 48 contiguous States and the District of Columbia."
         }
       ],
       "interpretation": {
@@ -1056,7 +1056,7 @@
         {
           "source_id": "7cfr-273.9",
           "citation": "7 CFR 273.9(a)",
-          "quote": "Households which contain a member who is elderly or disabled shall meet the net income eligibility standards; all other households shall meet both the net and gross income eligibility standards."
+          "quote": "Households which contain an elderly or disabled member shall meet the net income eligibility standards for SNAP. Households which do not contain an elderly or disabled member shall meet both the net income eligibility standards and the gross income eligibility standards for SNAP."
         }
       ],
       "interpretation": {
@@ -1101,7 +1101,12 @@
         {
           "source_id": "7cfr-273.10",
           "citation": "7 CFR 273.10(e)(2)(ii)(A)",
-          "quote": "If 30 percent of the household's net income ends in cents, the State agency shall round the 30 percent of net income up to the nearest higher dollar"
+          "quote": "If 30 percent of the household's net income ends in cents, the State agency shall round in one of the following ways:"
+        },
+        {
+          "source_id": "7cfr-273.10",
+          "citation": "7 CFR 273.10(e)(2)(ii)(A)(1)",
+          "quote": "The State agency shall round the 30 percent of net income up to the nearest higher dollar"
         }
       ],
       "interpretation": {
