@@ -201,3 +201,39 @@ class TestIngestCommand:
 
         assert main(["validate", str(path), "--sources", str(self.MANIFEST)]) == 1
         assert "RW1001" in capsys.readouterr().out
+
+
+class TestTokenCommand:
+    SECRET = "z" * 48
+
+    def test_a_minted_token_verifies(self, monkeypatch, capsys):
+        from ruleweaver.review.identity import ENV_SECRET, SignedTokenResolver
+
+        monkeypatch.setenv(ENV_SECRET, self.SECRET)
+        assert main(["token", "alice@example.gov"]) == 0
+        token = capsys.readouterr().out.strip()
+        assert SignedTokenResolver(self.SECRET).verify(token) == "alice@example.gov"
+
+    def test_only_the_token_reaches_stdout(self, monkeypatch, capsys):
+        """So it can be piped. The guidance goes to stderr."""
+        from ruleweaver.review.identity import ENV_SECRET
+
+        monkeypatch.setenv(ENV_SECRET, self.SECRET)
+        main(["token", "alice"])
+        captured = capsys.readouterr()
+        assert len(captured.out.strip().splitlines()) == 1
+        assert "valid for" in captured.err
+
+    def test_no_secret_is_an_error_with_a_way_out(self, monkeypatch, capsys):
+        from ruleweaver.review.identity import ENV_SECRET
+
+        monkeypatch.delenv(ENV_SECRET, raising=False)
+        assert main(["token", "alice"]) == 1
+        assert "token_urlsafe" in capsys.readouterr().err
+
+    def test_a_reviewer_id_that_would_forge_an_expiry_is_refused(self, monkeypatch, capsys):
+        from ruleweaver.review.identity import ENV_SECRET
+
+        monkeypatch.setenv(ENV_SECRET, self.SECRET)
+        assert main(["token", "alice|99999999999"]) == 2
+        assert "may not contain" in capsys.readouterr().err
