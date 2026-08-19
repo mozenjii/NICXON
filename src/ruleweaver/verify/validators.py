@@ -172,7 +172,7 @@ def _overrides(pkg: RulePackage, report: Report, rule_ids) -> None:
         overriders = [r for r in pkg.rules if rid in r.overrides]
         if any(getattr(r.when, "op", None) == "literal" and r.when.value is True for r in overriders):
             report.add(Diagnostic(
-                "RW3009", "warning", f"rule is unconditionally overridden and can never fire",
+                "RW3009", "warning", "rule is unconditionally overridden and can never fire",
                 rule_id=rid,
                 details={"overridden_by": [r.id for r in overriders]},
                 suggestion="either guard the overriding rule so this one can fire, or "
@@ -182,7 +182,7 @@ def _overrides(pkg: RulePackage, report: Report, rule_ids) -> None:
 def _find_cycles(graph: dict[str, set[str]]) -> list[list[str]]:
     cycles: list[list[str]] = []
     WHITE, GREY, BLACK = 0, 1, 2
-    colour = {n: WHITE for n in graph}
+    colour = dict.fromkeys(graph, WHITE)
 
     def visit(node: str, path: list[str]) -> None:
         colour[node] = GREY

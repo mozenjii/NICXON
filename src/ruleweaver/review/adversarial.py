@@ -20,10 +20,10 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from statistics import median
 
-from .decisions import Decision, ReviewEvent, ReviewLog
+from .decisions import Decision, ReviewLog
 
 
 @dataclass(frozen=True)
@@ -40,7 +40,7 @@ class SeededError:
     mutated_rule: dict
     expected_decision: Decision = Decision.REJECT
     seeded_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+        default_factory=lambda: datetime.now(UTC).isoformat()
     )
 
 

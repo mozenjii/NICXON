@@ -15,9 +15,9 @@ from typing import Union
 class _Unknown:
     """The absence of a determination. Distinct from false, and from an error."""
 
-    _instance: "_Unknown | None" = None
+    _instance: _Unknown | None = None
 
-    def __new__(cls) -> "_Unknown":
+    def __new__(cls) -> _Unknown:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance

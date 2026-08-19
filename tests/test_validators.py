@@ -21,7 +21,7 @@ def raw() -> dict:
     return json.loads(FIXTURE.read_text(encoding="utf-8"))
 
 
-def check(raw: dict, mutate) -> "Report":
+def check(raw: dict, mutate) -> Report:
     doc = copy.deepcopy(raw)
     mutate(doc)
     return validate(RulePackage.model_validate(doc))

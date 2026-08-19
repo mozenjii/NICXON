@@ -91,7 +91,7 @@ class Exception_(Base):
     sources: list[SourceSpan] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _substitute_required(self) -> "Exception_":
+    def _substitute_required(self) -> Exception_:
         if self.effect == "substitute" and self.substitute is None:
             raise ValueError(f"exception {self.id}: effect 'substitute' requires a 'substitute' block")
         if self.effect == "disable_base_rule" and self.substitute is not None:
@@ -121,7 +121,7 @@ class Rule(Base):
     interpretation: Interpretation = Field(default_factory=Interpretation)
 
     @model_validator(mode="after")
-    def _unique_exception_priority(self) -> "Rule":
+    def _unique_exception_priority(self) -> Rule:
         seen: dict[int, str] = {}
         for exc in self.exceptions:
             if exc.priority in seen:

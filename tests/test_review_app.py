@@ -13,7 +13,7 @@ from fastapi.testclient import TestClient
 
 from conftest import FIXTURE
 from ruleweaver.ir import RulePackage
-from ruleweaver.review import Decision, ReviewEvent
+from ruleweaver.review import Decision
 from ruleweaver.review.app import create_app
 from ruleweaver.review.store import ReviewStore, build_engine
 

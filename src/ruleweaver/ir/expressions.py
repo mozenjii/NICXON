@@ -10,7 +10,7 @@ for the clause behind each construct.
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Annotated, Literal, Union
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -42,13 +42,13 @@ class Param(ExprBase):
 
     op: Literal["parameter"]
     id: str
-    args: dict[str, "Expr"] = Field(default_factory=dict)
+    args: dict[str, Expr] = Field(default_factory=dict)
 
 
 class Compare(ExprBase):
     op: Literal["lt", "lte", "gt", "gte", "eq", "neq"]
-    left: "Expr"
-    right: "Expr"
+    left: Expr
+    right: Expr
 
 
 class BoolOp(ExprBase):
@@ -56,19 +56,19 @@ class BoolOp(ExprBase):
     shape of the clause it came from."""
 
     op: Literal["all", "any"]
-    args: list["Expr"]
+    args: list[Expr]
 
 
 class Not(ExprBase):
     op: Literal["not"]
-    arg: "Expr"
+    arg: Expr
 
 
 class Arith(ExprBase):
     """`subtract` and `divide` are left-folds over args, so `a - b - c` stays one node."""
 
     op: Literal["add", "subtract", "multiply", "divide", "min", "max"]
-    args: list["Expr"]
+    args: list[Expr]
 
 
 class Round(ExprBase):
@@ -78,7 +78,7 @@ class Round(ExprBase):
     """
 
     op: Literal["round"]
-    arg: "Expr"
+    arg: Expr
     mode: Literal["up", "down", "half_up", "half_even", "toward_zero"]
     to: str  # decimal quantum, e.g. "1" or "0.01"
 
@@ -87,7 +87,7 @@ class ConvertPeriod(ExprBase):
     """Period conversion is never implicit. Required by "divided by 12" at 273.9(a)(3)."""
 
     op: Literal["convert_period"]
-    arg: "Expr"
+    arg: Expr
     from_: Literal["day", "month", "year"] = Field(alias="from")
     to: Literal["day", "month", "year"]
     method: Literal["divide", "prorate_days"] = "divide"
@@ -104,15 +104,15 @@ class Clamp(ExprBase):
     """
 
     op: Literal["clamp"]
-    arg: "Expr"
-    min: "Expr | None" = None
-    max: "Expr | None" = None
+    arg: Expr
+    min: Expr | None = None
+    max: Expr | None = None
 
 
 class Case(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
-    when: "Expr"
-    then: "Expr"
+    when: Expr
+    then: Expr
 
 
 class Piecewise(ExprBase):
@@ -121,7 +121,7 @@ class Piecewise(ExprBase):
 
     op: Literal["piecewise"]
     cases: list[Case]
-    otherwise: "Expr"
+    otherwise: Expr
 
 
 class Aggregate(ExprBase):
@@ -133,16 +133,13 @@ class Aggregate(ExprBase):
 
     op: Literal["sum_over", "count_over", "min_over", "max_over", "any_over", "all_over"]
     entity: str
-    scope: "Expr"
-    value: "Expr"
-    where: "Expr | None" = None
+    scope: Expr
+    value: Expr
+    where: Expr | None = None
 
 
 Expr = Annotated[
-    Union[
-        Lit, Ref, Param, Compare, BoolOp, Not, Arith,
-        Round, ConvertPeriod, Clamp, Piecewise, Aggregate,
-    ],
+    Lit | Ref | Param | Compare | BoolOp | Not | Arith | Round | ConvertPeriod | Clamp | Piecewise | Aggregate,
     Field(discriminator="op"),
 ]
 

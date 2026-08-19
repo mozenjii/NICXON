@@ -8,13 +8,12 @@ from __future__ import annotations
 
 import copy
 import json
-from decimal import Decimal
 
 import pytest
 
 from conftest import FIXTURE, PARAMETER_OVERRIDES, household, member
 from ruleweaver.ir import RulePackage
-from ruleweaver.runtime import Evaluator, ParameterTable, is_unknown
+from ruleweaver.runtime import Evaluator, ParameterTable
 from ruleweaver.testgen import boundaries, generate_dates, transitions
 
 H = "var.household."

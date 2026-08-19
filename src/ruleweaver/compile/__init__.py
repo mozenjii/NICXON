@@ -15,11 +15,11 @@ from .segment import Segment, classify
 
 __all__ = [
     "CLASSIFICATIONS",
+    "SEGMENT_SCHEMA",
     "CompilationRun",
     "Prompt",
     "PromptError",
     "RuleProposal",
-    "SEGMENT_SCHEMA",
     "Segment",
     "Vocabulary",
     "available",

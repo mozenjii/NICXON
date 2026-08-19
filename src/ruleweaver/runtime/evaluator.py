@@ -15,8 +15,18 @@ from dataclasses import dataclass, field
 from decimal import ROUND_CEILING, ROUND_DOWN, ROUND_FLOOR, ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal
 
 from ..ir.expressions import (
-    Aggregate, Arith, BoolOp, Clamp, Compare, ConvertPeriod,
-    Lit, Not, Param, Piecewise, Ref, Round,
+    Aggregate,
+    Arith,
+    BoolOp,
+    Clamp,
+    Compare,
+    ConvertPeriod,
+    Lit,
+    Not,
+    Param,
+    Piecewise,
+    Ref,
+    Round,
 )
 from ..ir.rules import Rule, RulePackage
 from .values import UNKNOWN, Value, is_unknown, kleene_all, kleene_any, kleene_not

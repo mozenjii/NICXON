@@ -104,7 +104,7 @@ class TestTamperEvidence:
         assert not intact
 
     def test_reports_the_earliest_break(self, store):
-        ids = [store.append(event(reviewer=f"r{i}")) and None or None for i in range(4)]
+        ids = [(store.append(event(reviewer=f"r{i}")) and None) or None for i in range(4)]
         rows = store.events()
         with store.engine.begin() as conn:
             conn.execute(text(

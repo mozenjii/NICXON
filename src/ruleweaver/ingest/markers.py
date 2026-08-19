@@ -204,7 +204,7 @@ class Hierarchy:
         self.levels.append(Level(kind, marker, ordinal(marker, kind) or 1))
         return [lv.marker for lv in self.levels], True
 
-    def clone(self) -> "Hierarchy":
+    def clone(self) -> Hierarchy:
         """A copy, for trial placements that must not mutate the running state."""
         other = Hierarchy()
         other.levels = [Level(lv.kind, lv.marker, lv.index) for lv in self.levels]
@@ -224,7 +224,7 @@ class Hierarchy:
 RUNIN_RE = re.compile(r"(?:[—–-]|(?<=[.:;])\s)\(([A-Za-z0-9]{1,4})\)\s*")
 
 
-def split_runin(text: str, hierarchy: "Hierarchy") -> list[str]:
+def split_runin(text: str, hierarchy: Hierarchy) -> list[str]:
     """Split a paragraph that packs several clause levels into one.
 
     Candidate boundaries come from `RUNIN_RE`; each is accepted only if the resulting

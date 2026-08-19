@@ -19,8 +19,9 @@ from dataclasses import dataclass, field
 from typing import Protocol, runtime_checkable
 
 # Re-exported, not redefined. The approval gate hashes rules with the same function that
-# pins model inputs, and two implementations would eventually disagree.
-from ..hashing import digest
+# pins model inputs, and two implementations would eventually disagree. The redundant
+# alias is the explicit re-export form, so a lint pass cannot mistake it for a stray import.
+from ..hashing import digest as digest
 
 
 @dataclass(frozen=True)

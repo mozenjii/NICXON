@@ -21,10 +21,10 @@ from pathlib import Path
 
 from . import InvalidPackage, load
 from .approval import approved_subset, check
+from .diff import analyse, compare
 from .ingest import CorpusError, load_corpus
 from .ir import RulePackage
 from .runtime import Context, Evaluator, ParameterTable
-from .diff import analyse, compare
 from .testgen import generate
 from .verify import validate
 

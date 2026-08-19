@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import cache
 from pathlib import Path
 
 from ..hashing import digest
@@ -54,7 +54,7 @@ class Prompt:
         return self.text
 
 
-@lru_cache(maxsize=None)
+@cache
 def load(prompt_id: str, version: str) -> Prompt:
     """Load one prompt asset. Cached: the file cannot change mid-compilation."""
     path = PROMPTS / f"{prompt_id}.{version}.md"

@@ -14,8 +14,8 @@ from decimal import Decimal
 import pytest
 
 from conftest import FIXTURE, PARAMETER_OVERRIDES, household, member
-from ruleweaver.ir import RulePackage
 from ruleweaver.diff import analyse, compare, dependency_closure
+from ruleweaver.ir import RulePackage
 
 H = "var.household."
 OBSERVE = [H + "is_income_eligible", H + "net_monthly_income", H + "earned_income_deduction"]

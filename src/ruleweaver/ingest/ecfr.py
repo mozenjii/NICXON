@@ -23,7 +23,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from .document import PARAGRAPH_BREAK, Clause, SourceDocument, slugify
-from .markers import Hierarchy, MARKER_RE, split_runin
+from .markers import MARKER_RE, Hierarchy, split_runin
 
 # Editorial apparatus, not regulatory text. `CITA` is the source credit line, `EDNOTE` an
 # editorial note, `PSPACE`/`HED` layout. Ingesting them as clauses would let a rule cite a

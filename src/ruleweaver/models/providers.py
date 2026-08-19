@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from .base import (
@@ -34,7 +34,7 @@ _NO_SAMPLING = ("claude-opus-5", "claude-fable-5", "claude-mythos-5",
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _input_hashes(task: str, context: dict, schema: dict) -> dict[str, str]:

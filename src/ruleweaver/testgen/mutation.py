@@ -13,8 +13,8 @@ suite catches. That number is the evidence ADR-021 asks for.
 from __future__ import annotations
 
 import copy
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
-from typing import Callable, Iterator
 
 from ..ir.rules import RulePackage
 

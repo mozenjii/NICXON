@@ -60,7 +60,7 @@ class Vocabulary:
     parameters: list[dict] = field(default_factory=list)
 
     @classmethod
-    def from_package(cls, package) -> "Vocabulary":
+    def from_package(cls, package) -> Vocabulary:
         return cls(
             entities=[{"id": e.id, "label": e.label, "kind": e.kind}
                       for e in package.entities],

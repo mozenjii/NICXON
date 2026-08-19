@@ -16,9 +16,8 @@ whereas the canonical text is what a reviewer reads and what a quote is checked 
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-
 import re
+from dataclasses import dataclass, field
 
 from ..hashing import digest
 
