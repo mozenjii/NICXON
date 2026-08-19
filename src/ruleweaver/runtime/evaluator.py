@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from decimal import ROUND_CEILING, ROUND_DOWN, ROUND_FLOOR, ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal
+from typing import Any
 
 from ..ir.expressions import (
     Aggregate,
@@ -106,6 +107,34 @@ class ParameterTable:
         return UNKNOWN
 
 
+def _compare(op: str, left: Any, right: Any) -> bool:
+    """Evaluate one comparison.
+
+    Dispatched rather than looked up in a dict of results. Building that dict evaluated all
+    six comparisons to return one, which is wasted work on every rule and — worse — raises
+    for values that are equatable but not orderable, on an operator the rule never asked
+    for. An `eq` between two jurisdiction codes should not fail because `<` is undefined.
+
+    `Any` is deliberate and confined to this boundary. Both operands have already passed
+    the unknown guard in the caller, but `is_unknown` is an ordinary function rather than a
+    narrowing guard, so the type checker cannot see that. Widening here beats scattering
+    ignores across six operators.
+    """
+    if op == "eq":
+        return bool(left == right)
+    if op == "neq":
+        return bool(left != right)
+    if op == "lt":
+        return bool(left < right)
+    if op == "lte":
+        return bool(left <= right)
+    if op == "gt":
+        return bool(left > right)
+    if op == "gte":
+        return bool(left >= right)
+    raise EvaluationError(f"unknown comparison operator: {op}")
+
+
 class Evaluator:
     def __init__(self, package: RulePackage, parameters: ParameterTable | None = None) -> None:
         self.package = package
@@ -140,11 +169,7 @@ class Evaluator:
             right = self.eval(e.right, ctx, member)
             if is_unknown(left) or is_unknown(right):
                 return UNKNOWN
-            return {
-                "lt": left < right, "lte": left <= right,
-                "gt": left > right, "gte": left >= right,
-                "eq": left == right, "neq": left != right,
-            }[e.op]
+            return _compare(e.op, left, right)
 
         if isinstance(e, BoolOp):
             vals = [self.eval(a, ctx, member) for a in e.args]
@@ -160,24 +185,24 @@ class Evaluator:
             return self._arith(e.op, [Decimal(str(v)) for v in vals])
 
         if isinstance(e, Round):
-            v = self.eval(e.arg, ctx, member)
-            if is_unknown(v):
+            rounded = self.eval(e.arg, ctx, member)
+            if is_unknown(rounded):
                 return UNKNOWN
-            return Decimal(str(v)).quantize(Decimal(e.to), rounding=_ROUNDING[e.mode])
+            return Decimal(str(rounded)).quantize(Decimal(e.to), rounding=_ROUNDING[e.mode])
 
         if isinstance(e, ConvertPeriod):
-            v = self.eval(e.arg, ctx, member)
-            if is_unknown(v):
+            period = self.eval(e.arg, ctx, member)
+            if is_unknown(period):
                 return UNKNOWN
             if e.method != "divide":
                 raise EvaluationError(f"period method not implemented: {e.method}")
-            return Decimal(str(v)) * _MONTHS_PER[e.to] / _MONTHS_PER[e.from_]
+            return Decimal(str(period)) * _MONTHS_PER[e.to] / _MONTHS_PER[e.from_]
 
         if isinstance(e, Clamp):
-            v = self.eval(e.arg, ctx, member)
-            if is_unknown(v):
+            bounded = self.eval(e.arg, ctx, member)
+            if is_unknown(bounded):
                 return UNKNOWN
-            v = Decimal(str(v))
+            v = Decimal(str(bounded))
             if e.min is not None:
                 lo = self.eval(e.min, ctx, member)
                 if is_unknown(lo):
