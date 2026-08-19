@@ -157,3 +157,47 @@ class TestApprovalsCommand:
         TestApprovalGate().approve_everything(db)
         assert main(["approvals", str(FIXTURE), "--database", db]) == 0
         assert "15 approved, 0 blocked" in capsys.readouterr().out
+
+
+class TestIngestCommand:
+    MANIFEST = FIXTURE.parent / "sources" / "manifest.json"
+
+    def test_reports_the_corpus(self, capsys):
+        assert main(["ingest", str(self.MANIFEST)]) == 0
+        out = capsys.readouterr().out
+        assert "snap-us-federal" in out
+        assert "3 sources" in out
+
+    def test_prints_a_clause_by_citation(self, capsys):
+        assert main(["ingest", str(self.MANIFEST), "--clause", "7 CFR 273.9(d)(2)"]) == 0
+        assert "Twenty percent of gross earned income" in capsys.readouterr().out
+
+    def test_an_unknown_clause_exits_nonzero(self, capsys):
+        assert main(["ingest", str(self.MANIFEST), "--clause", "7 CFR 273.9(zz)"]) == 1
+        assert "no clause" in capsys.readouterr().err
+
+    def test_a_corrupted_corpus_stops_the_command(self, tmp_path, capsys):
+        import shutil
+
+        staged = tmp_path / "sources"
+        shutil.copytree(self.MANIFEST.parent, staged)
+        target = staged / "7cfr-273.9.xml"
+        target.write_bytes(target.read_bytes().replace(b"\n", b"\r\n"))
+
+        with pytest.raises(SystemExit) as exc:
+            main(["ingest", str(staged / "manifest.json")])
+        assert exc.value.code == 1
+        assert "does not match its manifest" in capsys.readouterr().err
+
+    def test_validate_with_sources_checks_citations(self, capsys):
+        assert main(["validate", str(FIXTURE), "--sources", str(self.MANIFEST)]) == 0
+        assert "RW1001" not in capsys.readouterr().out
+
+    def test_validate_with_sources_reports_a_drifted_quote(self, tmp_path, capsys):
+        doc = json.loads(FIXTURE.read_text(encoding="utf-8"))
+        doc["rules"][3]["sources"][0]["quote"] = "Forty percent of gross earned income."
+        path = tmp_path / "drifted.json"
+        path.write_text(json.dumps(doc), encoding="utf-8")
+
+        assert main(["validate", str(path), "--sources", str(self.MANIFEST)]) == 1
+        assert "RW1001" in capsys.readouterr().out
