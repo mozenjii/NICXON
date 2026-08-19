@@ -221,7 +221,7 @@ class Hierarchy:
 # and also runs a list into its lead-in — "shall include: (i) All wages". A dash, or a
 # full stop, colon or semicolon before the marker are all candidates; whether
 # a match is really a new clause is decided by the hierarchy, not by the regex.
-RUNIN_RE = re.compile(r"(?:[—–-]|(?<=[.:;])\s)\(([A-Za-z0-9]{1,4})\)\s")
+RUNIN_RE = re.compile(r"(?:[—–-]|(?<=[.:;])\s)\(([A-Za-z0-9]{1,4})\)\s*")
 
 
 def split_runin(text: str, hierarchy: "Hierarchy") -> list[str]:
@@ -239,22 +239,32 @@ def split_runin(text: str, hierarchy: "Hierarchy") -> list[str]:
     accepted: list[str] = [first.group(1)]
     cuts: list[int] = []
 
-    # A chain of markers at the very start — "(ii)(A) Except as provided" — is always
-    # nesting, with no separator to key on. Only the leading run qualifies: further along,
-    # "(a)(1)" is far more likely to be a cross-reference than a clause boundary.
-    position = first.end()
-    while (nested := _MARKER_AT.match(text, position)) is not None:
-        if not hierarchy.accepts(accepted + [nested.group(1)]):
-            break
-        accepted.append(nested.group(1))
-        cuts.append(position)
-        position = nested.end()
+    def consume_adjacent(position: int) -> int:
+        """Absorb a run of markers with nothing between them.
 
-    for match in RUNIN_RE.finditer(text, position):
-        if hierarchy.accepts(accepted + [match.group(1)]):
-            accepted.append(match.group(1))
-            # Cut at the parenthesis, dropping the dash or space that introduced it.
-            cuts.append(match.start(0) + match.group(0).index("("))
+        "(i)(A) Households which contain" is always nesting — there is no separator to key
+        on, so only immediate adjacency qualifies. Elsewhere in a sentence "(a)(1)" is far
+        more likely to be a cross-reference than a clause boundary, and the hierarchy
+        acceptance test is the second guard against treating one as the other.
+        """
+        while (nested := _MARKER_AT.match(text, position)) is not None:
+            if not hierarchy.accepts(accepted + [nested.group(1)]):
+                break
+            accepted.append(nested.group(1))
+            cuts.append(position)
+            position = nested.end()
+        return position
+
+    position = consume_adjacent(first.end())
+
+    while (match := RUNIN_RE.search(text, position)) is not None:
+        if not hierarchy.accepts(accepted + [match.group(1)]):
+            position = match.end()
+            continue
+        accepted.append(match.group(1))
+        # Cut at the parenthesis, dropping the dash or punctuation that introduced it.
+        cuts.append(match.start(0) + match.group(0).index("("))
+        position = consume_adjacent(match.end())
 
     if not cuts:
         return [text]
