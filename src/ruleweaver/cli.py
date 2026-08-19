@@ -5,6 +5,7 @@
     ruleweaver boundaries examples/snap/rules.json examples/snap/scenarios/baseline.json
     ruleweaver approvals  examples/snap/rules.json
     ruleweaver ingest     examples/snap/sources/manifest.json
+    ruleweaver extract    examples/snap/sources/manifest.json examples/snap/rules.json
     ruleweaver schema
 
 Exit codes: 0 success, 1 validation or approval failed, 2 bad usage.
@@ -212,6 +213,76 @@ def cmd_ingest(args) -> int:
     return 0
 
 
+def cmd_extract(args) -> int:
+    """Compile a source corpus into a candidate rule package.
+
+    Writes the candidate beside a run record. The two belong together: a package nobody can
+    trace back to the corpus digests, prompt versions and decoding settings that produced it
+    cannot be reproduced, and an extraction nobody can reproduce cannot be argued about.
+    """
+    from .compile.pipeline import compile_corpus
+    from .compile.providers import UnknownProvider, build
+    from .models.base import MissingCredentials, ProviderError
+
+    corpus = _corpus_or_exit(args.manifest)
+    base = _load_or_exit(args.vocabulary, verify=not args.no_verify)
+
+    replay = None
+    if args.replay:
+        replay = json.loads(Path(args.replay).read_text(encoding="utf-8"))
+
+    try:
+        provider, settings = build(args.provider, model=args.model, responses=replay)
+    except UnknownProvider as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+
+    if args.provider == "recorded" and replay is None:
+        print("the recorded provider replays saved responses and has none. Pass "
+              "--replay to supply them, or --provider anthropic / --provider openai "
+              "to call a model.", file=sys.stderr)
+        return 2
+    if args.provider == "recorded":
+        print(f"replaying {len(replay)} recorded response(s): no model will be called.",
+              file=sys.stderr)
+
+    print(f"compiling {corpus.corpus_id} with {args.provider}/{settings.model}",
+          file=sys.stderr)
+    try:
+        candidate, run, report = compile_corpus(
+            corpus, provider=provider, settings=settings, base=base,
+            source_ids=args.source or None, limit=args.limit)
+    except MissingCredentials as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    except ProviderError as exc:
+        print(f"the provider failed: {exc}", file=sys.stderr)
+        return 1
+
+    print()
+    print(run)
+    if report.diagnostics:
+        print()
+        print(report)
+
+    if args.out:
+        out = Path(args.out)
+        out.write_text(
+            json.dumps(candidate.model_dump(mode="json", by_alias=True, exclude_none=True),
+                       indent=2, ensure_ascii=False),
+            encoding="utf-8")
+        record = out.with_suffix(".run.json")
+        record.write_text(json.dumps(run.as_dict(), indent=2), encoding="utf-8")
+        print()
+        print(f"candidate:  {out}")
+        print(f"run record: {record}")
+        print("every rule is unreviewed — run 'ruleweaver review' before executing it")
+
+    # A run that proposed nothing is not a success, whatever the exit code of the model
+    # calls. Reporting it as one hides a broken prompt behind an empty queue.
+    return 0 if run.usable else 1
+
+
 def cmd_approvals(args) -> int:
     """Report which rules may execute, and why the rest may not."""
     package = _load_or_exit(args.package, verify=not args.no_verify)
@@ -266,6 +337,21 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--sources", default=None,
                    help="source manifest; also checks that every citation resolves")
     p.set_defaults(func=cmd_validate)
+
+    p = sub.add_parser("extract", help="compile a source corpus into candidate rules")
+    p.add_argument("manifest", help="source manifest to compile from")
+    p.add_argument("vocabulary",
+                   help="rule package supplying the controlled vocabulary (ADR-018)")
+    p.add_argument("--provider", default="recorded",
+                   choices=["recorded", "anthropic", "openai"])
+    p.add_argument("--model", default=None, help="override the provider's default model")
+    p.add_argument("--source", action="append", help="restrict to one source id")
+    p.add_argument("--limit", type=int, default=None, help="stop after N clauses")
+    p.add_argument("--replay", default=None,
+                   help="JSON array of recorded responses, for the recorded provider")
+    p.add_argument("--out", default=None, help="write the candidate package here")
+    p.add_argument("--no-verify", action="store_true")
+    p.set_defaults(func=cmd_extract)
 
     p = sub.add_parser("ingest", help="verify and parse a source corpus")
     p.add_argument("manifest")
