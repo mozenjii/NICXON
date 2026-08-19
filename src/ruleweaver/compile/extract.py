@@ -36,7 +36,7 @@ from dataclasses import dataclass, field
 import pydantic
 
 from ..ingest.document import Clause, SourceDocument, resolve_span
-from ..ir.rules import Ambiguity, Interpretation, Rule
+from ..ir.rules import Ambiguity, Interpretation, Interpretations, Rule
 from ..models.base import ModelProvider, RunMetadata, Settings
 from ..verify.diagnostics import Diagnostic
 from . import prompts, schemas
@@ -153,10 +153,14 @@ def _guard_ambiguity(clause: Clause, reasons: list[str]) -> Ambiguity:
             "proposal reflects the regulation rather than the injected text."
         ),
         interpretations=[
-            {"id": "authentic", "description":
-                "The wording is genuinely part of the regulation and was encoded as text."},
-            {"id": "tampered", "description":
-                "The source has been altered; re-fetch it and discard this proposal."},
+            Interpretations(
+                id="authentic",
+                description="The wording is genuinely part of the regulation and was "
+                            "encoded as text."),
+            Interpretations(
+                id="tampered",
+                description="The source has been altered; re-fetch it and discard this "
+                            "proposal."),
         ],
     )
 
@@ -249,12 +253,17 @@ def propose(
             rule_id=rule.id, object_id=clause.node_id,
             suggestion="a rule with no provenance cannot be reviewed against anything"))
     else:
+        # A span with neither a node id nor a citation identifies nothing. It is dropped
+        # from the comparison rather than sorted alongside real addresses — sorting a set
+        # containing None raises, and doing so here would crash the error path, which is
+        # the worst possible place for a crash.
         cited = {s.node_id or s.citation for s in rule.sources}
+        addressed = sorted(c for c in cited if c is not None)
         if clause.node_id not in cited and clause.citation not in cited:
             result.diagnostics.append(Diagnostic(
                 "RW1002", "error",
-                f"the proposed rule cites {sorted(cited)} but was extracted from "
-                f"{clause.citation}",
+                f"the proposed rule cites {addressed or 'nothing addressable'} but was "
+                f"extracted from {clause.citation}",
                 rule_id=rule.id, object_id=clause.node_id,
                 suggestion="a proposal must cite the clause it was shown"))
 
