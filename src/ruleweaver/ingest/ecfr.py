@@ -150,9 +150,13 @@ def parse_section(
             cursor = end_char + len(PARAGRAPH_BREAK)
 
             parent_path = path[:-1]
+            parent_id: str | None
             if parent_path:
                 parent_id = "p" + "".join(f"-{p}" for p in parent_path)
             else:
+                # No marker path means the clause sits at the top of the section — under
+                # the definition currently being read, if there is one, and otherwise
+                # under nothing.
                 parent_id = definition_root
             if parent_id is not None and not any(
                     c.node_id.split("#")[0] == parent_id for c in clauses):

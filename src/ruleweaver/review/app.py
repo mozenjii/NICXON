@@ -20,6 +20,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -113,7 +114,7 @@ def create_app(
 
     @app.get("/", response_class=HTMLResponse)
     def queue(request: Request):
-        rows = [
+        rows: list[dict[str, Any]] = [
             {
                 "rule": rule,
                 "status": status_of(rule.id),

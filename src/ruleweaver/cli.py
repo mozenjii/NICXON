@@ -237,12 +237,12 @@ def cmd_extract(args) -> int:
         print(str(exc), file=sys.stderr)
         return 2
 
-    if args.provider == "recorded" and replay is None:
-        print("the recorded provider replays saved responses and has none. Pass "
-              "--replay to supply them, or --provider anthropic / --provider openai "
-              "to call a model.", file=sys.stderr)
-        return 2
     if args.provider == "recorded":
+        if replay is None:
+            print("the recorded provider replays saved responses and has none. Pass "
+                  "--replay to supply them, or --provider anthropic / --provider openai "
+                  "to call a model.", file=sys.stderr)
+            return 2
         print(f"replaying {len(replay)} recorded response(s): no model will be called.",
               file=sys.stderr)
 
