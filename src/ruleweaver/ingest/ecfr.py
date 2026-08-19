@@ -22,7 +22,7 @@ import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from .document import Clause, SourceDocument
+from .document import PARAGRAPH_BREAK, Clause, SourceDocument
 from .markers import Hierarchy, MARKER_RE, split_runin
 
 # Editorial apparatus, not regulatory text. `CITA` is the source credit line, `EDNOTE` an
@@ -147,7 +147,7 @@ def parse_section(
             start_char = cursor
             end_char = start_char + len(segment)
             chunks.append(segment)
-            cursor = end_char + 2  # the blank line separating segments in the join below
+            cursor = end_char + len(PARAGRAPH_BREAK)
 
             parent_path = path[:-1]
             parent_id = ("p" + "".join(f"-{p}" for p in parent_path)) if parent_path else None
@@ -178,7 +178,7 @@ def parse_section(
         source_id=source_id,
         citation=base_citation,
         title=doc_title or base_citation,
-        text="\n\n".join(chunks),
+        text=PARAGRAPH_BREAK.join(chunks),
         clauses=clauses,
         point_in_time=point_in_time,
         retrieved_at=retrieved_at,

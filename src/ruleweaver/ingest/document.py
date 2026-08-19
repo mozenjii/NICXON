@@ -20,6 +20,10 @@ from dataclasses import dataclass, field
 
 from ..hashing import digest
 
+# What separates clauses in a document's canonical text. Character offsets are into
+# that rendering, so this cannot change without invalidating every recorded span.
+PARAGRAPH_BREAK = "\n\n"
+
 
 @dataclass(frozen=True)
 class Clause:
@@ -76,6 +80,29 @@ class SourceDocument:
     def children_of(self, node_id: str | None) -> list[Clause]:
         return [c for c in self.clauses if c.parent_id == node_id]
 
+    def subtree(self, node_id: str) -> list[Clause]:
+        """A clause and everything nested under it, in document order.
+
+        A citation names a subsection, not a paragraph: "7 CFR 273.9(d)" covers (d) and
+        all of (d)(1) through (d)(6). Checking a quote against the lead-in paragraph alone
+        would reject a correct citation whose quote sits in a child.
+        """
+        root = self.clause(node_id)
+        if root is None:
+            return []
+        collected = [root]
+        frontier = [root.node_id]
+        while frontier:
+            parent = frontier.pop()
+            for child in self.clauses:
+                if child.parent_id == parent and child not in collected:
+                    collected.append(child)
+                    frontier.append(child.node_id)
+        return sorted(collected, key=lambda c: c.start_char)
+
+    def subtree_text(self, node_id: str) -> str:
+        return PARAGRAPH_BREAK.join(c.text for c in self.subtree(node_id))
+
     def slice(self, start: int, end: int) -> str:
         return self.text[start:end]
 
@@ -131,9 +158,17 @@ def resolve_span(span, documents: dict[str, SourceDocument]) -> SpanResolution:
                 False, f"{span.source_id} has no clause cited as {span.citation!r}")
 
     if span.quote:
-        haystack = clause.text if clause is not None else document.text
-        if _normalise(span.quote) not in _normalise(haystack):
-            where = clause.citation if clause is not None else document.citation
+        wanted = _normalise(span.quote)
+        if clause is not None:
+            # The clause itself, then its subtree. Citing a subsection and quoting one of
+            # its paragraphs is normal legal practice, not a provenance failure.
+            found = (wanted in _normalise(clause.text)
+                     or wanted in _normalise(document.subtree_text(clause.node_id)))
+            where = clause.citation
+        else:
+            found = wanted in _normalise(document.text)
+            where = document.citation
+        if not found:
             return SpanResolution(
                 False, f"the quoted text is not present in {where}", clause)
 
