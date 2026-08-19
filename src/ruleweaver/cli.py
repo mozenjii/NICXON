@@ -4,6 +4,7 @@
     ruleweaver evaluate   examples/snap/rules.json examples/snap/scenarios/baseline.json
     ruleweaver boundaries examples/snap/rules.json examples/snap/scenarios/baseline.json
     ruleweaver approvals  examples/snap/rules.json
+    ruleweaver export     examples/snap/rules.json build/openfisca
     ruleweaver ingest     examples/snap/sources/manifest.json
     ruleweaver extract    examples/snap/sources/manifest.json examples/snap/rules.json
     ruleweaver schema
@@ -300,6 +301,37 @@ def cmd_approvals(args) -> int:
     return 0 if report.ok else 1
 
 
+def cmd_export(args) -> int:
+    """Lower an approved rule package into an OpenFisca country package.
+
+    Refuses unapproved rules by default. Export is the step that puts rules in front of
+    claimants, so it is the last place a gate should be optional.
+    """
+    from .adapters.openfisca import export as export_openfisca
+
+    package = _load_or_exit(args.package, verify=not args.no_verify)
+    log = None if args.no_approval else _review_log(args.database)
+    result = export_openfisca(package, log=log, require_approval=not args.no_approval)
+
+    if args.no_approval:
+        print("--no-approval: exporting unreviewed rules. This output must not be "
+              "deployed.", file=sys.stderr)
+
+    print(result)
+    if not result.ok and not args.force:
+        print()
+        print("nothing was written. Fix the errors above, or pass --force to write an "
+              "export that is known to be incomplete.", file=sys.stderr)
+        return 1
+
+    root = result.write(args.out)
+    print()
+    print(f"wrote {len(result.files)} file(s) to {root}")
+    if not result.ok:
+        print("this export is incomplete — see the errors above", file=sys.stderr)
+    return 0 if result.ok else 1
+
+
 def cmd_review(args) -> int:
     """Serve the reviewer application."""
     try:
@@ -433,6 +465,17 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--observe", action="append", help="variable id to compare")
     p.add_argument("--no-verify", action="store_true")
     p.set_defaults(func=cmd_diff)
+
+    p = sub.add_parser("export", help="lower approved rules to an OpenFisca package")
+    p.add_argument("package")
+    p.add_argument("out", help="directory to write the country package into")
+    p.add_argument("--database", default=None, help="review log to read approvals from")
+    p.add_argument("--no-approval", action="store_true",
+                   help="dry run: export unreviewed rules, which must not be deployed")
+    p.add_argument("--force", action="store_true",
+                   help="write the export even when it is known to be incomplete")
+    p.add_argument("--no-verify", action="store_true")
+    p.set_defaults(func=cmd_export)
 
     p = sub.add_parser("review", help="serve the reviewer application")
     p.add_argument("package")
