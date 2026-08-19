@@ -1,4 +1,15 @@
-# 10 — Engineering Backlog
+# 10 — Backlog
+
+> **Status, 2026-08-20.** 82 of 134 items are done. `docs/01_PROJECT_STATUS.md` is the
+> authority on what is built; this file is the plan. An item is ticked only when there is
+> an implementation *and* a test — a backlog that overstates progress is worse than one
+> nobody updated, because someone will trust it.
+>
+> Two P0 items remain. **The type checker** is genuinely absent: validators resolve
+> references and detect cycles, but nothing checks that an expression's operand types are
+> compatible, so a comparison between a money value and a date would pass validation and
+> fail at evaluation. **Epic K's differential test harness** is the missing evidence for
+> the OpenFisca adapter — see ADR-029.
 
 Legend:
 
@@ -9,88 +20,88 @@ Legend:
 
 ## Epic A — Repository foundation
 
-- [ ] **P0** Bootstrap Python package.
-- [ ] **P0** Add pytest.
-- [ ] **P0** Add static type checking.
-- [ ] **P0** Add formatting/linting.
-- [ ] **P0** Add CI workflow.
-- [ ] **P0** Define diagnostic object and code ranges.
+- [x] **P0** Bootstrap Python package.
+- [x] **P0** Add pytest.
+- [x] **P0** Add static type checking.
+- [x] **P0** Add formatting/linting.
+- [x] **P0** Add CI workflow.
+- [x] **P0** Define diagnostic object and code ranges.
 - [ ] **P1** Add release/version tooling.
-- [ ] **P1** Add JSON Schema generation/check.
+- [x] **P1** Add JSON Schema generation/check.
 
 ## Epic B — Source model
 
-- [ ] **P0** `SourceManifest`.
-- [ ] **P0** `SourceDocument`.
-- [ ] **P0** `SourceNode` hierarchy.
-- [ ] **P0** `SourceSpan` selector model.
-- [ ] **P0** source hashing.
+- [x] **P0** `SourceManifest`.
+- [x] **P0** `SourceDocument`.
+- [x] **P0** `SourceNode` hierarchy.
+- [x] **P0** `SourceSpan` selector model.
+- [x] **P0** source hashing.
 - [ ] **P1** cross-reference object.
-- [ ] **P1** version/effective metadata.
-- [ ] **P1** source validation diagnostics.
+- [x] **P1** version/effective metadata.
+- [x] **P1** source validation diagnostics.
 
 ## Epic C — Rule IR
 
-- [ ] **P0** IR package envelope/versioning.
-- [ ] **P0** stable ID conventions.
-- [ ] **P0** value types.
-- [ ] **P0** expression AST.
-- [ ] **P0** variables.
-- [ ] **P0** parameters.
-- [ ] **P0** rules.
-- [ ] **P0** effective periods.
-- [ ] **P0** source provenance links.
-- [ ] **P0** review status.
-- [ ] **P1** definitions.
-- [ ] **P1** simple exceptions/priority.
-- [ ] **P1** ambiguity objects.
+- [x] **P0** IR package envelope/versioning.
+- [x] **P0** stable ID conventions.
+- [x] **P0** value types.
+- [x] **P0** expression AST.
+- [x] **P0** variables.
+- [x] **P0** parameters.
+- [x] **P0** rules.
+- [x] **P0** effective periods.
+- [x] **P0** source provenance links.
+- [x] **P0** review status.
+- [x] **P1** definitions.
+- [x] **P1** simple exceptions/priority.
+- [x] **P1** ambiguity objects.
 - [ ] **P1** human-judgment predicate representation.
 
 ## Epic D — Reference evaluator
 
-- [ ] **P0** expression interpreter.
-- [ ] **P0** three/four-state unknown semantics.
-- [ ] **P0** parameter lookup by date.
-- [ ] **P0** rule assignment/evaluation.
-- [ ] **P0** deterministic execution trace.
-- [ ] **P1** exception evaluation.
-- [ ] **P1** entity context.
+- [x] **P0** expression interpreter.
+- [x] **P0** three/four-state unknown semantics.
+- [x] **P0** parameter lookup by date.
+- [x] **P0** rule assignment/evaluation.
+- [x] **P0** deterministic execution trace.
+- [x] **P1** exception evaluation.
+- [x] **P1** entity context.
 - [ ] **P2** performance/vectorization investigation.
 
 ## Epic E — Verification
 
-- [ ] **P0** schema validator.
+- [x] **P0** schema validator.
 - [ ] **P0** type checker.
-- [ ] **P0** reference resolver.
-- [ ] **P0** duplicate ID diagnostics.
-- [ ] **P0** dependency graph.
-- [ ] **P0** cycle detection.
-- [ ] **P1** temporal overlap/gap diagnostics.
+- [x] **P0** reference resolver.
+- [x] **P0** duplicate ID diagnostics.
+- [x] **P0** dependency graph.
+- [x] **P0** cycle detection.
+- [x] **P1** temporal overlap/gap diagnostics.
 - [ ] **P1** parameter availability diagnostics.
-- [ ] **P1** exception priority diagnostics.
+- [x] **P1** exception priority diagnostics.
 - [ ] **P2** basic contradiction checks.
 
 ## Epic F — Tests
 
-- [ ] **P0** rule package test-case schema.
-- [ ] **P0** test runner.
-- [ ] **P0** human/source test provenance.
-- [ ] **P1** threshold boundary generator.
-- [ ] **P1** effective-date generator.
+- [x] **P0** rule package test-case schema.
+- [x] **P0** test runner.
+- [x] **P0** human/source test provenance.
+- [x] **P1** threshold boundary generator.
+- [x] **P1** effective-date generator.
 - [ ] **P1** exception generator.
 - [ ] **P1** dependency-path generator.
-- [ ] **P2** mutation testing.
+- [x] **P2** mutation testing.
 - [ ] **P2** property-based test suite.
 
 ## Epic G — Initial fictional corpus
 
-- [ ] **P0** write fictional benefit source in plain English.
-- [ ] **P0** hand-author source structure.
-- [ ] **P0** hand-author gold Rule IR.
-- [ ] **P0** hand-author policy-intent tests.
-- [ ] **P0** include dated threshold amendment.
-- [ ] **P0** include exception and cross-reference.
-- [ ] **P0** include one deliberate ambiguity example.
+- [~] **P0** write fictional benefit source in plain English. **Superseded** — the corpus is real: 7 CFR 271.2, 273.9 and 273.10, verified against recorded digests. A fictional source cannot surface the cases that broke the parser.
+- [x] **P0** hand-author source structure.
+- [x] **P0** hand-author gold Rule IR.
+- [x] **P0** hand-author policy-intent tests.
+- [x] **P0** include dated threshold amendment.
+- [x] **P0** include exception and cross-reference.
+- [x] **P0** include one deliberate ambiguity example.
 
 ## Epic H — Source ingestion
 
@@ -104,26 +115,26 @@ Legend:
 
 ## Epic I — Model/compiler infrastructure
 
-- [ ] **P1** provider-neutral model interface.
-- [ ] **P1** structured-output abstraction.
-- [ ] **P1** prompt asset registry.
-- [ ] **P1** prompt version hashes.
-- [ ] **P1** compiler run metadata/provenance.
-- [ ] **P1** clause classifier.
+- [x] **P1** provider-neutral model interface.
+- [x] **P1** structured-output abstraction.
+- [x] **P1** prompt asset registry.
+- [x] **P1** prompt version hashes.
+- [x] **P1** compiler run metadata/provenance.
+- [x] **P1** clause classifier.
 - [ ] **P1** concept extractor.
-- [ ] **P1** rule proposal compiler.
+- [x] **P1** rule proposal compiler.
 - [ ] **P1** reference linker.
-- [ ] **P1** ambiguity detector.
+- [x] **P1** ambiguity detector.
 - [ ] **P2** local-model backend.
 
 ## Epic J — Review workflow
 
-- [ ] **P1** review state machine.
-- [ ] **P1** decision/audit model.
-- [ ] **P1** package approval policy.
-- [ ] **P1** minimal review API.
-- [ ] **P1** source/rule side-by-side UI.
-- [ ] **P1** approve/edit/reject.
+- [x] **P1** review state machine.
+- [x] **P1** decision/audit model.
+- [x] **P1** package approval policy.
+- [x] **P1** minimal review API.
+- [x] **P1** source/rule side-by-side UI.
+- [x] **P1** approve/edit/reject.
 - [ ] **P1** ambiguity resolution UI.
 - [ ] **P1** test approval UI.
 - [ ] **P2** reviewer comments.
@@ -131,31 +142,31 @@ Legend:
 
 ## Epic K — OpenFisca adapter
 
-- [ ] **P1** feature capability report.
-- [ ] **P1** entity mapping.
-- [ ] **P1** variables mapping.
-- [ ] **P1** parameters mapping.
-- [ ] **P1** expression-to-formula generator.
+- [x] **P1** feature capability report.
+- [x] **P1** entity mapping.
+- [x] **P1** variables mapping.
+- [x] **P1** parameters mapping.
+- [x] **P1** expression-to-formula generator.
 - [ ] **P1** formula/date mapping.
 - [ ] **P1** YAML test export.
-- [ ] **P1** package scaffold output.
+- [x] **P1** package scaffold output.
 - [ ] **P1** target validation.
 - [ ] **P1** differential test harness.
 
 ## Epic L — Amendment/change impact
 
-- [ ] **P1** source snapshot versions.
+- [x] **P1** source snapshot versions.
 - [ ] **P1** structural source diff.
-- [ ] **P1** semantic object diff.
-- [ ] **P1** mark affected rules stale.
-- [ ] **P1** downstream dependency impact.
+- [x] **P1** semantic object diff.
+- [x] **P1** mark affected rules stale.
+- [x] **P1** downstream dependency impact.
 - [ ] **P1** affected-test calculation.
 - [ ] **P2** reviewer change dashboard.
 
 ## Epic M — Benchmark
 
-- [ ] **P1** choose first real corpus.
-- [ ] **P1** licensing/reuse review.
+- [x] **P1** choose first real corpus.
+- [x] **P1** licensing/reuse review.
 - [ ] **P1** annotation guidelines.
 - [ ] **P1** gold source structure.
 - [ ] **P1** gold semantic labels.
@@ -168,10 +179,10 @@ Legend:
 
 ## Epic N — Developer experience
 
-- [ ] **P1** CLI.
+- [x] **P1** CLI.
 - [ ] **P1** Docker image.
-- [ ] **P1** example project.
-- [ ] **P1** architecture docs kept current.
+- [x] **P1** example project.
+- [x] **P1** architecture docs kept current.
 - [ ] **P2** FastAPI service.
 - [ ] **P2** GitHub Action.
 - [ ] **P2** plugin SDK.
