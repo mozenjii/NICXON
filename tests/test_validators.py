@@ -13,7 +13,7 @@ import pytest
 
 from conftest import FIXTURE
 from ruleweaver.ir import RulePackage
-from ruleweaver.verify import validate
+from ruleweaver.verify import Report, validate
 
 
 @pytest.fixture(scope="module")

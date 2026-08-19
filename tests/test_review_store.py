@@ -22,8 +22,8 @@ def store(tmp_path):
 
 
 def event(**kw) -> ReviewEvent:
-    base = dict(rule_id=RULE, reviewer="alice", decision=Decision.APPROVE,
-                rule_hash="r1", source_hash="s1")
+    base = {"rule_id": RULE, "reviewer": "alice", "decision": Decision.APPROVE,
+                "rule_hash": "r1", "source_hash": "s1"}
     base.update(kw)
     return ReviewEvent(**base)
 
@@ -83,7 +83,7 @@ class TestTamperEvidence:
 
     def test_editing_a_decision_breaks_the_chain(self, store):
         store.append(event(reviewer="alice"))
-        target = store.append(event(reviewer="bob"))
+        store.append(event(reviewer="bob"))
         store.append(event(reviewer="carol"))
 
         # Someone with database access flips a rejection into an approval.
@@ -104,7 +104,8 @@ class TestTamperEvidence:
         assert not intact
 
     def test_reports_the_earliest_break(self, store):
-        ids = [(store.append(event(reviewer=f"r{i}")) and None) or None for i in range(4)]
+        for index in range(4):
+            store.append(event(reviewer=f"r{index}"))
         rows = store.events()
         with store.engine.begin() as conn:
             conn.execute(text(

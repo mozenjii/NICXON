@@ -67,7 +67,7 @@ class TestCommencement:
 
     def test_commencement_is_reported_as_a_transition(self, raw):
         _, cases = _cases(raw)
-        changed = dict((b, (x, y)) for b, x, y in transitions(cases, ELIGIBLE))
+        changed = {b: (x, y) for b, x, y in transitions(cases, ELIGIBLE)}
         assert "2026-01-01" in changed
         assert changed["2026-01-01"] == (None, True)
 

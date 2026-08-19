@@ -162,7 +162,6 @@ class AdversarialQueue:
 
     def metrics(self) -> ReviewMetrics:
         events = self.log.events
-        resolved = [e for e in events if e.seeded_error_id]
         return ReviewMetrics(
             total_reviewed=len(events),
             seeded_total=len(self._seeded),

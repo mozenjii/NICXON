@@ -96,7 +96,11 @@ class ParameterTable:
         if param is None:
             raise EvaluationError(f"unknown parameter: {pid}")
         for pv in param.values:
-            if pv.effective_from <= on_date and (pv.effective_to is None or on_date < pv.effective_to):
+            # Two independent tests, deliberately not collapsed: the first selects the
+            # value in force on the date, the second selects the cell along the
+            # parameter's dimensions. Joining them reads as one condition and hides that
+            # a parameter can be in force yet have no value at these coordinates.
+            if pv.effective_from <= on_date and (pv.effective_to is None or on_date < pv.effective_to):  # noqa: SIM102
                 if all(str(coords.get(k)) == v for k, v in pv.at.items()):
                     return Decimal(str(pv.value)) if not isinstance(pv.value, bool) else pv.value
         return UNKNOWN

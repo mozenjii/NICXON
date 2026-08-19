@@ -70,7 +70,7 @@ def _review_log(database: str | None):
     except ImportError as exc:
         print(f"cannot read the review log: {exc}", file=sys.stderr)
         print('  pip install "ruleweaver[review]"', file=sys.stderr)
-        raise SystemExit(1)
+        raise SystemExit(1) from exc
 
     try:
         return ReviewStore(build_engine(database)).load_log()
@@ -81,7 +81,7 @@ def _review_log(database: str | None):
         print(f"cannot open the review log: {exc.__class__.__name__}: {exc}",
               file=sys.stderr)
         print("  the gate cannot be evaluated, so nothing was executed", file=sys.stderr)
-        raise SystemExit(1)
+        raise SystemExit(1) from exc
 
 
 def _load_or_exit(path: str, *, verify: bool) -> RulePackage:
@@ -89,7 +89,7 @@ def _load_or_exit(path: str, *, verify: bool) -> RulePackage:
         return load(path, verify=verify)
     except InvalidPackage as exc:
         print(str(exc), file=sys.stderr)
-        raise SystemExit(1)
+        raise SystemExit(1) from exc
 
 
 def _corpus_or_exit(manifest: str | None, *, verify: bool = True):
@@ -99,7 +99,7 @@ def _corpus_or_exit(manifest: str | None, *, verify: bool = True):
         return load_corpus(manifest, verify=verify)
     except CorpusError as exc:
         print(str(exc), file=sys.stderr)
-        raise SystemExit(1)
+        raise SystemExit(1) from exc
 
 
 def cmd_validate(args) -> int:

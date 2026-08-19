@@ -161,8 +161,8 @@ def create_app(
         reviewer = resolve_reviewer(request)
         try:
             chosen = Decision(decision)
-        except ValueError:
-            raise HTTPException(400, f"unknown decision: {decision}")
+        except ValueError as exc:
+            raise HTTPException(400, f"unknown decision: {decision}") from exc
 
         seeded = next((s for s in store.seeds() if s["rule_id"] == rule_id), None)
 
@@ -180,7 +180,7 @@ def create_app(
         except ValueError as exc:
             # A rejection without a reason. Send them back rather than storing a
             # decision the next reviewer cannot act on.
-            raise HTTPException(400, str(exc))
+            raise HTTPException(400, str(exc)) from exc
 
         store.append(event)
         return RedirectResponse(f"/rule/{rule_id}", status_code=303)

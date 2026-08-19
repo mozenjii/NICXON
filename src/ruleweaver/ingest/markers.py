@@ -23,6 +23,7 @@ than refusing to parse the document at all.
 
 from __future__ import annotations
 
+import itertools
 import re
 from dataclasses import dataclass
 
@@ -221,7 +222,7 @@ class Hierarchy:
 # and also runs a list into its lead-in — "shall include: (i) All wages". A dash, or a
 # full stop, colon or semicolon before the marker are all candidates; whether
 # a match is really a new clause is decided by the hierarchy, not by the regex.
-RUNIN_RE = re.compile(r"(?:[—–-]|(?<=[.:;])\s)\(([A-Za-z0-9]{1,4})\)\s*")
+RUNIN_RE = re.compile(r"(?:[—–-]|(?<=[.:;])\s)\(([A-Za-z0-9]{1,4})\)\s*")  # noqa: RUF001 - em and en dash are both intended
 
 
 def split_runin(text: str, hierarchy: Hierarchy) -> list[str]:
@@ -248,7 +249,7 @@ def split_runin(text: str, hierarchy: Hierarchy) -> list[str]:
         acceptance test is the second guard against treating one as the other.
         """
         while (nested := _MARKER_AT.match(text, position)) is not None:
-            if not hierarchy.accepts(accepted + [nested.group(1)]):
+            if not hierarchy.accepts([*accepted, nested.group(1)]):
                 break
             accepted.append(nested.group(1))
             cuts.append(position)
@@ -258,7 +259,7 @@ def split_runin(text: str, hierarchy: Hierarchy) -> list[str]:
     position = consume_adjacent(first.end())
 
     while (match := RUNIN_RE.search(text, position)) is not None:
-        if not hierarchy.accepts(accepted + [match.group(1)]):
+        if not hierarchy.accepts([*accepted, match.group(1)]):
             position = match.end()
             continue
         accepted.append(match.group(1))
@@ -271,8 +272,8 @@ def split_runin(text: str, hierarchy: Hierarchy) -> list[str]:
 
     segments = []
     bounds = [0, *cuts, len(text)]
-    for start, end in zip(bounds, bounds[1:]):
-        segment = text[start:end].strip().rstrip("—–-").strip()
+    for start, end in itertools.pairwise(bounds):
+        segment = text[start:end].strip().rstrip("—–-").strip()  # noqa: RUF001
         if segment:
             segments.append(segment)
     return segments

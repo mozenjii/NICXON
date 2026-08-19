@@ -190,9 +190,9 @@ def _find_cycles(graph: dict[str, set[str]]) -> list[list[str]]:
             if nxt not in colour:
                 continue
             if colour[nxt] == GREY:
-                cycles.append(path[path.index(nxt):] + [nxt])
+                cycles.append([*path[path.index(nxt):], nxt])
             elif colour[nxt] == WHITE:
-                visit(nxt, path + [nxt])
+                visit(nxt, [*path, nxt])
         colour[node] = BLACK
 
     for node in list(graph):

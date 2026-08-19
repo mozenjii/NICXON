@@ -7,6 +7,8 @@ compiles.
 
 from __future__ import annotations
 
+import dataclasses
+
 import pytest
 
 from ruleweaver.review import (
@@ -24,8 +26,8 @@ RULE = "rule.snap.gross_income_test"
 
 
 def event(**kw) -> ReviewEvent:
-    base = dict(rule_id=RULE, reviewer="alice", decision=Decision.APPROVE,
-                rule_hash="r1", source_hash="s1")
+    base = {"rule_id": RULE, "reviewer": "alice", "decision": Decision.APPROVE,
+                "rule_hash": "r1", "source_hash": "s1"}
     base.update(kw)
     return ReviewEvent(**base)
 
@@ -94,7 +96,7 @@ class TestDecisionIntegrity:
 
     def test_events_are_immutable(self):
         e = event()
-        with pytest.raises(Exception):
+        with pytest.raises(dataclasses.FrozenInstanceError):
             e.decision = Decision.REJECT  # type: ignore[misc]
 
 

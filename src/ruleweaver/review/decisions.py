@@ -19,10 +19,10 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 
 
-class Decision(str, Enum):
+class Decision(StrEnum):
     APPROVE = "approve"
     EDIT = "edit"
     REJECT = "reject"
@@ -31,7 +31,7 @@ class Decision(str, Enum):
     REQUEST_SOURCE_CLARIFICATION = "request_source_clarification"
 
 
-class Status(str, Enum):
+class Status(StrEnum):
     """Derived from the log — never assigned directly."""
 
     UNREVIEWED = "unreviewed"

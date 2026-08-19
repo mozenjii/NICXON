@@ -9,7 +9,6 @@ treating it as false.
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Union
 
 
 class _Unknown:
@@ -34,7 +33,7 @@ class _Unknown:
 
 UNKNOWN = _Unknown()
 
-Value = Union[bool, Decimal, int, str, None, _Unknown]
+Value = bool | Decimal | int | str | None | _Unknown
 
 
 def is_unknown(v: Value) -> bool:
