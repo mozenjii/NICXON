@@ -200,3 +200,49 @@ class TestFixtureShape:
         document = json.loads(FIXTURE.read_text(encoding="utf-8"))
         effects = {e["effect"] for r in document["rules"] for e in r.get("exceptions", [])}
         assert effects <= {"substitute"}
+
+
+class TestExportCommand:
+    """The adapter as a user meets it."""
+
+    def approve_all(self, database: str) -> None:
+        from ruleweaver.review.store import ReviewStore, build_engine
+
+        document = json.loads(FIXTURE.read_text(encoding="utf-8"))
+        package = RulePackage.model_validate(document)
+        store = ReviewStore(build_engine(database))
+        for rule_id, (rule_hash, source_hash) in current_hashes(package).items():
+            store.append(ReviewEvent(rule_id=rule_id, reviewer="alice",
+                                     decision=Decision.APPROVE,
+                                     rule_hash=rule_hash, source_hash=source_hash))
+
+    def test_an_unapproved_package_writes_nothing(self, tmp_path, capsys):
+        from ruleweaver.cli import main
+
+        out = tmp_path / "country"
+        database = f"sqlite:///{tmp_path / 'review.db'}"
+        assert main(["export", str(FIXTURE), str(out), "--database", database]) == 1
+        assert not out.exists(), "a refused export must not leave a half-written package"
+        assert "not approved" in capsys.readouterr().out
+
+    def test_an_approved_package_is_written(self, tmp_path, capsys):
+        from ruleweaver.cli import main
+
+        out = tmp_path / "country"
+        database = f"sqlite:///{tmp_path / 'review.db'}"
+        self.approve_all(database)
+
+        # Exits non-zero: the fixture's published tables are missing, so the export is
+        # incomplete. The files are still written, because seeing them is how you find out
+        # what is missing.
+        assert main(["export", str(FIXTURE), str(out), "--database", database,
+                     "--force"]) == 1
+        assert (out / "variables.py").exists()
+        assert "15 variable(s) exported" in capsys.readouterr().out
+
+    def test_the_dry_run_says_it_must_not_be_deployed(self, tmp_path, capsys):
+        from ruleweaver.cli import main
+
+        out = tmp_path / "country"
+        main(["export", str(FIXTURE), str(out), "--no-approval", "--force"])
+        assert "must not be deployed" in capsys.readouterr().err
