@@ -43,7 +43,7 @@ OpenFisca / Catala / LegalRuleML / other adapters
 9. **The repository must remain useful even if model vendors change.**
 10. **RuleWeaver must never present itself as an authoritative legal source or legal-advice system.**
 
-## Current status — 2026-08-17
+## Current status — 2026-08-20
 
 ### Decided / researched
 
@@ -61,23 +61,31 @@ OpenFisca / Catala / LegalRuleML / other adapters
 
 - [x] Typed rule IR with a closed expression AST.
 - [x] Deterministic evaluator, four-state, with execution traces.
-- [x] Verification engine — 16 checks with stable `RWxxxx` diagnostic codes.
-- [x] Boundary case generator.
+- [x] Verification engine — 17 checks with stable `RWxxxx` diagnostic codes.
+- [x] Boundary case generator and date transition generator.
 - [x] Mutation harness — **22/22 planted faults caught**.
-- [x] Date transition generator.
 - [x] Semantic diff and amendment impact analysis.
-- [x] Golden corpus: 15 SNAP rules hand-encoded from 7 CFR 273.9 and 273.10,
-      covering income eligibility and benefit calculation.
+- [x] Source ingestion — eCFR XML into 468 addressable clauses, every snapshot
+      verified against its recorded sha256 before it is read.
+- [x] Golden corpus: 15 SNAP rules from 7 CFR 271.2, 273.9 and 273.10, **every one of
+      whose 16 citations resolves to verbatim text in the clause it names**.
+- [x] LLM compilation — clause segmentation and rule extraction, behind six checks the
+      model cannot talk its way past.
 - [x] Provider-neutral model interface (Claude + GPT) with prompt-injection guard.
 - [x] Adversarial review gate — seeded errors, catch rate, rubber-stamp detection.
-- [x] Reviewer application — clause beside rule, hash-chained audit log.
+- [x] Reviewer application — clause beside rule, hash-chained audit log, authenticated
+      identity.
+- [x] Approval enforced at execution: unapproved rules do not run.
+- [x] OpenFisca adapter — a code generator, per ADR-019.
 - [x] CLI.
 
 ### Not built yet
 
-- [ ] Source ingestion pipeline.
-- [ ] LLM extraction passes — the interface exists; nothing calls a model yet.
-- [ ] OpenFisca adapter.
+- [ ] **Equivalence evidence for the OpenFisca export.** The generated package is checked
+      structurally and parses. Nobody has run it under OpenFisca and compared the results
+      against the deterministic evaluator, so "exports to OpenFisca" is a structural claim.
+- [ ] PDF and Akoma Ntoso ingestion.
+- [ ] Parameter extraction — thresholds still come from the hand-encoded package.
 - [ ] Public benchmark.
 
 See [`docs/01_PROJECT_STATUS.md`](docs/01_PROJECT_STATUS.md) for the detailed state.
@@ -87,7 +95,7 @@ See [`docs/01_PROJECT_STATUS.md`](docs/01_PROJECT_STATUS.md) for the detailed st
 ```bash
 python -m venv .venv
 .venv/bin/pip install -e ".[dev]"        # Windows: .venv/Scripts/pip
-pytest                                    # 178 tests
+pytest                                    # 370 tests
 ```
 
 Check a rule package, then run a household through it:
@@ -165,6 +173,88 @@ LEGISLATIVE CHANGE IMPACT
 
 A reworded citation is reported as cosmetic and stops there. Only a change in meaning
 propagates into impact analysis.
+
+### Compiling from the source
+
+Ingestion is separate from extraction, and both are separate from approval. Each step
+refuses to guess:
+
+```bash
+ruleweaver ingest examples/snap/sources/manifest.json
+```
+
+Every snapshot is checked against the sha256 the manifest records before it is parsed. A
+file that does not match stops the command — a corrupted source is not a source.
+
+```bash
+ruleweaver validate examples/snap/rules.json --sources examples/snap/sources/manifest.json
+```
+
+With `--sources`, validation also resolves every citation: the clause must exist, and the
+quote must be contiguous text inside it. This check found that fourteen of the fifteen
+hand-encoded rules quoted text that was not in the clause they cited.
+
+```bash
+ruleweaver extract examples/snap/sources/manifest.json examples/snap/rules.json   --provider anthropic --source 7cfr-273.9 --out build/candidate.json
+```
+
+Segments each clause, proposes a rule for the computable ones, and writes a candidate
+package beside a run record — corpus digests, prompt hashes, decoding settings, and every
+model call. The default provider calls nothing; reaching a paid API takes an explicit flag.
+
+**Six checks run on every proposal, and the model cannot argue with any of them.** The
+output must parse as IR. It must cite the clause it was shown. Its quotes must be present
+in the verified source. Its status is forced to `needs_review` whatever the model asked
+for — a model may not approve its own work. Confidence is recorded and never acted on. And
+if the clause contains text that reads as an instruction to the compiler, the proposal is
+escalated with a blocking ambiguity rather than dropped, because dropping it would hide
+the attempt from the only person who can do anything about it.
+
+### The gate
+
+```bash
+ruleweaver approvals build/candidate.json
+ruleweaver evaluate build/candidate.json examples/snap/scenarios/baseline.json   --require-approval
+```
+
+A fresh candidate is entirely blocked. `--require-approval` refuses to execute; `--partial`
+runs the approved subset instead, and everything that depended on an unapproved rule comes
+back `UNKNOWN` — never `False`. "No approved rule decides this" and "this household does
+not qualify" are different answers and the runtime keeps them apart.
+
+The reviewer application needs a real identity before it will serve:
+
+```bash
+export RULEWEAVER_SESSION_SECRET=$(python -c "import secrets; print(secrets.token_urlsafe(48))")
+ruleweaver token alice@example.gov
+```
+
+With neither a signing secret nor a trusted proxy configured it refuses to start. It used
+to fall back to trusting a header, which meant a deployment that forgot to wire up identity
+still recorded approvals — against whatever name the client sent.
+
+### Exporting to OpenFisca
+
+```bash
+ruleweaver export examples/snap/rules.json build/openfisca
+```
+
+Per ADR-019 this is a **code generator**: OpenFisca rules are Python `Variable` subclasses
+with vectorised formulas, and only parameters are data. Unapproved rules are not exported.
+
+Every export reports `RW8001`, and the generated module repeats it at the top of the file:
+
+> OpenFisca has no unknown state. A fact nobody supplied takes the type default — 0 for a
+> number, False for a boolean — so a missing input is indistinguishable from a genuine
+> zero.
+
+That gap cannot be closed inside the adapter, so it is stated rather than absorbed. It is
+the difference between a model that asks a question and one that issues a denial.
+
+**The export has not been executed.** It is generated, it parses, and every variable
+carries its citation. Running it under OpenFisca and comparing the results against the
+deterministic evaluator is the evidence that would make "exports to OpenFisca" a claim
+about behaviour, and that work has not been done.
 
 ## Read this documentation in order
 
