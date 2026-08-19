@@ -122,18 +122,32 @@ class TestStaleness:
 class TestIdentity:
     def test_missing_identity_is_rejected(self, package, store):
         """An audit log whose reviewer field is optional is not an audit log."""
-        from ruleweaver.review.app import InsecureReviewerResolver
+        from ruleweaver.review.identity import InsecureReviewerResolver
 
         with pytest.warns(RuntimeWarning, match="not fit for deployment|unfit|Anyone can claim"):
             resolver = InsecureReviewerResolver()
         client = TestClient(create_app(package, store, reviewer_resolver=resolver))
         assert client.post(f"/rule/{RULE}/decide", data={"decision": "approve"}).status_code == 401
 
-    def test_default_resolver_warns_loudly(self):
-        from ruleweaver.review.app import InsecureReviewerResolver
+    def test_the_insecure_resolver_warns_loudly(self):
+        from ruleweaver.review.identity import InsecureReviewerResolver
 
         with pytest.warns(RuntimeWarning):
             InsecureReviewerResolver()
+
+    def test_an_unconfigured_application_refuses_to_start(self, package, store,
+                                                          monkeypatch):
+        """The default used to be the insecure resolver, so a deployment that forgot to
+        configure identity still served and still recorded approvals — against a name the
+        client chose. That is now a startup failure."""
+        from ruleweaver.review import identity
+
+        for name in (identity.ENV_SECRET, identity.ENV_TRUSTED_HEADER,
+                     identity.ENV_TRUSTED_PEERS, identity.ENV_ALLOW_INSECURE):
+            monkeypatch.delenv(name, raising=False)
+
+        with pytest.raises(identity.IdentityNotConfigured):
+            create_app(package, store)
 
 
 class TestMetricsPage:
