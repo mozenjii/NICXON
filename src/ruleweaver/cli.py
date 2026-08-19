@@ -312,14 +312,54 @@ def cmd_review(args) -> int:
               f'  pip install "ruleweaver[review]"', file=sys.stderr)
         return 1
 
+    from .review.identity import IdentityNotConfigured
+
     package = _load_or_exit(args.package, verify=not args.no_verify)
     store = ReviewStore(build_engine(args.database))
-    app = create_app(package, store, seed_rate=args.seed_rate, salt=args.salt)
+    try:
+        app = create_app(package, store, seed_rate=args.seed_rate, salt=args.salt)
+    except IdentityNotConfigured as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
 
     print(f"reviewing {len(package.rules)} rules from {args.package}")
     print(f"audit log: {args.database or 'sqlite:///ruleweaver-review.db'}")
     print(f"http://{args.host}:{args.port}\n")
     uvicorn.run(app, host=args.host, port=args.port, log_level="warning")
+    return 0
+
+
+def cmd_token(args) -> int:
+    """Mint a reviewer session token.
+
+    Prints the token and nothing else on stdout, so it can be piped. The secret is read
+    from the environment and never accepted as an argument — a secret on a command line
+    ends up in shell history and in the process table.
+    """
+    import os
+
+    from .review.identity import ENV_SECRET, mint_token
+
+    secret = os.environ.get(ENV_SECRET)
+    if not secret:
+        print(f"{ENV_SECRET} is not set. Generate one and export it:", file=sys.stderr)
+        print("  python -c \"import secrets; print(secrets.token_urlsafe(48))\"",
+              file=sys.stderr)
+        return 1
+
+    try:
+        token = mint_token(args.reviewer, secret, ttl=args.ttl)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+
+    print(token)
+    # Everything else goes to stderr so the token can be piped or captured cleanly.
+    print(file=sys.stderr)
+    print(f"valid for {args.ttl // 3600}h. Send it as a cookie or a bearer header:",
+          file=sys.stderr)
+    print(f"  curl -H 'Authorization: Bearer {token[:16]}…' http://127.0.0.1:8000/",
+          file=sys.stderr)
     return 0
 
 
@@ -405,6 +445,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--salt", default="", help="rotate per review campaign")
     p.add_argument("--no-verify", action="store_true")
     p.set_defaults(func=cmd_review)
+
+    p = sub.add_parser("token", help="mint a reviewer session token")
+    p.add_argument("reviewer", help="the identity to record against every decision")
+    p.add_argument("--ttl", type=int, default=8 * 60 * 60, help="lifetime in seconds")
+    p.set_defaults(func=cmd_token)
 
     p = sub.add_parser("schema", help="print the JSON Schema for a rule package")
     p.set_defaults(func=cmd_schema)
