@@ -61,7 +61,8 @@ OpenFisca / Catala / LegalRuleML / other adapters
 
 - [x] Typed rule IR with a closed expression AST.
 - [x] Deterministic evaluator, four-state, with execution traces.
-- [x] Verification engine — 17 checks with stable `RWxxxx` diagnostic codes.
+- [x] Verification engine — 41 stable `RWxxxx` diagnostics, including a type checker
+      over the expression AST.
 - [x] Boundary case generator and date transition generator.
 - [x] Mutation harness — **22/22 planted faults caught**.
 - [x] Semantic diff and amendment impact analysis.
@@ -95,7 +96,7 @@ See [`docs/01_PROJECT_STATUS.md`](docs/01_PROJECT_STATUS.md) for the detailed st
 ```bash
 python -m venv .venv
 .venv/bin/pip install -e ".[dev]"        # Windows: .venv/Scripts/pip
-pytest                                    # 370 tests
+pytest                                    # 389 tests
 ```
 
 Check a rule package, then run a household through it:

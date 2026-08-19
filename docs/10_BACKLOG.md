@@ -1,15 +1,17 @@
 # 10 — Backlog
 
-> **Status, 2026-08-20.** 82 of 134 items are done. `docs/01_PROJECT_STATUS.md` is the
+> **Status, 2026-08-20.** 83 of 134 items are done. `docs/01_PROJECT_STATUS.md` is the
 > authority on what is built; this file is the plan. An item is ticked only when there is
 > an implementation *and* a test — a backlog that overstates progress is worse than one
 > nobody updated, because someone will trust it.
 >
-> Two P0 items remain. **The type checker** is genuinely absent: validators resolve
-> references and detect cycles, but nothing checks that an expression's operand types are
-> compatible, so a comparison between a money value and a date would pass validation and
-> fail at evaluation. **Epic K's differential test harness** is the missing evidence for
-> the OpenFisca adapter — see ADR-029.
+> Every P0 is done. The type checker was the last one: validators resolved references and
+> detected cycles, but nothing checked that an expression's operand types could meet, so a
+> comparison between a money value and a date passed validation. `RW2003`-`RW2008` now
+> reject it.
+>
+> The most valuable P1 left is **Epic K's differential test harness** — the missing
+> evidence for the OpenFisca adapter, see ADR-029. Everything else is breadth.
 
 Legend:
 
@@ -71,7 +73,7 @@ Legend:
 ## Epic E — Verification
 
 - [x] **P0** schema validator.
-- [ ] **P0** type checker.
+- [x] **P0** type checker.
 - [x] **P0** reference resolver.
 - [x] **P0** duplicate ID diagnostics.
 - [x] **P0** dependency graph.

@@ -97,7 +97,7 @@ Checked items are built and covered by tests. Everything unchecked is genuinely 
 ### Runtime and verification
 
 - [x] evaluator.
-- [ ] type checker.
+- [x] type checker — operand and assignment types, `RW2003`-`RW2008`.
 - [x] reference resolver.
 - [x] dependency graph.
 - [x] cycle detection.
@@ -201,10 +201,10 @@ Keep these up to date once implementation starts:
 | Golden policy corpora | 1 (SNAP, 15 rules from 7 CFR 271.2, 273.9 and 273.10) |
 | Provenance verified against source | **16/16 spans resolve to verbatim clause text** |
 | Deterministic rule features implemented | 12 expression nodes, exceptions, overrides, 4-state values, trace |
-| Tests | 370 passing (`pytest`) |
+| Tests | 389 passing (`pytest`) |
 | Mutation score | **22/22 caught (100%)** |
-| Lint / type check | ruff clean, mypy clean (47 files) |
-| Validators implemented | 17, stable `RWxxxx` codes |
+| Lint / type check | ruff clean, mypy clean (48 files) |
+| Validators implemented | 41 distinct `RWxxxx` diagnostics across 6 families |
 | Test generators | boundary + date transition |
 | Amendment impact | semantic diff + dependency closure + outcome comparison |
 | CLI | `validate`, `evaluate`, `boundaries`, `diff`, `ingest`, `extract`, `approvals`, `export`, `review`, `token`, `schema` |
