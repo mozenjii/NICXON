@@ -26,7 +26,14 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-# CFR convention, outermost first. Depth is the index into this list.
+# The CFR's level cycle, outermost first: (a)(1)(i)(A)(1)(i)(A). Digits and lower roman
+# numerals genuinely repeat at depth 5 and 6 — 7 CFR 273.9(c)(3)(ii)(C)(1) is a real
+# citation — so a flat list of distinct kinds cannot represent this document. Treating the
+# second digit level as a restart of the first is what reparents whole subtrees.
+LEVEL_KINDS = ("alpha_lower", "digit", "roman_lower", "alpha_upper",
+               "digit", "roman_lower", "alpha_upper")
+
+# Every kind that can appear, for classification.
 KINDS = ("alpha_lower", "digit", "roman_lower", "alpha_upper", "roman_upper")
 
 _ROMAN_VALUES = (("m", 1000), ("cm", 900), ("d", 500), ("cd", 400), ("c", 100),
@@ -37,6 +44,10 @@ _ROMAN_RE = re.compile(r"^m{0,3}(cm|cd|d?c{0,3})(xc|xl|l?x{0,3})(ix|iv|v?i{0,3})
 
 # The opening marker of a paragraph: "(a) text", "(1) text", "(iv) text".
 MARKER_RE = re.compile(r"^\(([A-Za-z0-9]{1,4})\)\s*")
+
+# The same shape without the anchor, for matching at an offset. `MARKER_RE` keeps its `^`
+# so it can never match a parenthesis mid-sentence by accident.
+_MARKER_AT = re.compile(r"\(([A-Za-z0-9]{1,4})\)\s*")
 
 
 def roman_to_int(text: str) -> int | None:
@@ -162,18 +173,23 @@ class Hierarchy:
                 self.levels.append(Level(level.kind, marker, index))
                 return [lv.marker for lv in self.levels], False
 
-        # 2. Opening a new, deeper level. Only the first marker of a kind may do this —
-        #    "(c)" appearing with no "(a)" before it is a gap, not a new level.
-        open_kinds = {level.kind for level in self.levels}
-        deepest = max((KINDS.index(level.kind) for level in self.levels), default=-1)
+        # 2. Opening the next level of the CFR cycle. Only the first marker of a sequence
+        #    may do this — "(c)" with no "(a)" before it is a gap, not a new level.
+        expected = LEVEL_KINDS[min(len(self.levels), len(LEVEL_KINDS) - 1)]
+        if expected in candidates and ordinal(marker, expected) == 1:
+            self.levels.append(Level(expected, marker, 1))
+            return [lv.marker for lv in self.levels], False
+
+        # 3. A first marker of some other kind still opens a level, as long as it is not
+        #    the kind already sitting at the bottom of the stack — that would be a restart
+        #    of the current sequence, which is a break in the document, not nesting.
+        innermost = self.levels[-1].kind if self.levels else None
         for kind in candidates:
-            if kind in open_kinds or KINDS.index(kind) <= deepest:
-                continue
-            if ordinal(marker, kind) == 1:
+            if kind != innermost and ordinal(marker, kind) == 1:
                 self.levels.append(Level(kind, marker, 1))
                 return [lv.marker for lv in self.levels], False
 
-        # 3. Salvage. A skipped marker — (a) then (c) — is common in amended regulations
+        # 4. Salvage. A skipped marker — (a) then (c) — is common in amended regulations
         #    where a paragraph was removed, so replace the level rather than dropping the
         #    paragraph, and record that the depth is a guess.
         for depth in range(len(self.levels) - 1, -1, -1):
@@ -187,7 +203,6 @@ class Hierarchy:
         kind = candidates[0]
         self.levels.append(Level(kind, marker, ordinal(marker, kind) or 1))
         return [lv.marker for lv in self.levels], True
-
 
     def clone(self) -> "Hierarchy":
         """A copy, for trial placements that must not mutate the running state."""
@@ -203,9 +218,10 @@ class Hierarchy:
 
 # A run-in marker: the CFR sets a subsection heading and its first child in one paragraph,
 # separated by an em dash — "(a) Month of application—(1) Determination of eligibility" —
-# and starts the next level after the heading's full stop. Both forms are matched; whether
+# and also runs a list into its lead-in — "shall include: (i) All wages". A dash, or a
+# full stop, colon or semicolon before the marker are all candidates; whether
 # a match is really a new clause is decided by the hierarchy, not by the regex.
-RUNIN_RE = re.compile(r"(?:[—–-]|(?<=\.)\s)\(([A-Za-z0-9]{1,4})\)\s")
+RUNIN_RE = re.compile(r"(?:[—–-]|(?<=[.:;])\s)\(([A-Za-z0-9]{1,4})\)\s")
 
 
 def split_runin(text: str, hierarchy: "Hierarchy") -> list[str]:
@@ -222,7 +238,19 @@ def split_runin(text: str, hierarchy: "Hierarchy") -> list[str]:
 
     accepted: list[str] = [first.group(1)]
     cuts: list[int] = []
-    for match in RUNIN_RE.finditer(text, first.end()):
+
+    # A chain of markers at the very start — "(ii)(A) Except as provided" — is always
+    # nesting, with no separator to key on. Only the leading run qualifies: further along,
+    # "(a)(1)" is far more likely to be a cross-reference than a clause boundary.
+    position = first.end()
+    while (nested := _MARKER_AT.match(text, position)) is not None:
+        if not hierarchy.accepts(accepted + [nested.group(1)]):
+            break
+        accepted.append(nested.group(1))
+        cuts.append(position)
+        position = nested.end()
+
+    for match in RUNIN_RE.finditer(text, position):
         if hierarchy.accepts(accepted + [match.group(1)]):
             accepted.append(match.group(1))
             # Cut at the parenthesis, dropping the dash or space that introduced it.
