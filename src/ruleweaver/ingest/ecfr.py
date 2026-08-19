@@ -22,7 +22,7 @@ import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from .document import PARAGRAPH_BREAK, Clause, SourceDocument
+from .document import PARAGRAPH_BREAK, Clause, SourceDocument, slugify
 from .markers import Hierarchy, MARKER_RE, split_runin
 
 # Editorial apparatus, not regulatory text. `CITA` is the source credit line, `EDNOTE` an
@@ -38,10 +38,6 @@ _HEADING_RE = re.compile(r"^§+\s*([\d.]+[A-Za-z]?)\s+(.*?)\.?$")
 # none would be individually addressable — which defeats ADR-018, where the controlled
 # vocabulary is meant to be traceable term by term.
 _DEFINITION_RE = re.compile(r"^(?P<term>[A-Z][^.]{0,79}?)\s+means\b")
-
-
-def _slug(term: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "-", term.lower()).strip("-")
 
 
 def _flatten(element: ET.Element) -> str:
@@ -99,6 +95,10 @@ def parse_section(
     doc_title = title or heading_text
 
     hierarchy = Hierarchy()
+    # The definition currently being read, if any. Sub-items of a definition carry
+    # ordinary markers and no indication of which definition they belong to, so
+    # without this every one of them would be filed at the top of the section.
+    definition_root: str | None = None
     clauses: list[Clause] = []
     notes: list[str] = []
     chunks: list[str] = []
@@ -132,7 +132,7 @@ def parse_section(
 
             if definition is not None and not path:
                 term = definition.group("term")
-                node_id = f"def-{_slug(term)}"
+                node_id = f"def-{slugify(term)}"
                 clause_citation = f'{base_citation} (definition of "{term}")'
             else:
                 node_id = "p" + "".join(f"-{p}" for p in path) if path else "p"
@@ -150,7 +150,10 @@ def parse_section(
             cursor = end_char + len(PARAGRAPH_BREAK)
 
             parent_path = path[:-1]
-            parent_id = ("p" + "".join(f"-{p}" for p in parent_path)) if parent_path else None
+            if parent_path:
+                parent_id = "p" + "".join(f"-{p}" for p in parent_path)
+            else:
+                parent_id = definition_root
             if parent_id is not None and not any(
                     c.node_id.split("#")[0] == parent_id for c in clauses):
                 # A child whose parent was never emitted. Real in amended sections;
@@ -173,6 +176,12 @@ def parse_section(
                 heading=definition.group("term") if definition is not None else None,
                 uncertain_depth=uncertain,
             ))
+
+            if definition is not None:
+                definition_root = node_id
+            elif not path:
+                # Unmarked, undefined text ends the definition it followed.
+                definition_root = None
 
     return SourceDocument(
         source_id=source_id,
