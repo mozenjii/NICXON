@@ -1,0 +1,9 @@
+# Authoritative source snapshots are verified by sha256 against
+# examples/snap/sources/manifest.json. Git must never rewrite their line endings:
+# with core.autocrlf=true a Windows checkout converts LF to CRLF, every recorded
+# digest fails, and the provenance chain the project rests on silently breaks — in a
+# way that depends on each contributor's git configuration rather than on the data.
+examples/snap/sources/*.xml -text
+
+# Golden fixtures and generated artifacts are compared byte for byte in tests.
+examples/**/*.json text eol=lf
