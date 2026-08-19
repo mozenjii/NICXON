@@ -10,6 +10,7 @@ from __future__ import annotations
 from ..ir.expressions import Aggregate, Lit, Param, Piecewise, Ref
 from ..ir.rules import Rule, RulePackage
 from .diagnostics import Diagnostic, Report
+from .types import check_types
 
 
 def _walk(expr):
@@ -68,6 +69,7 @@ def validate(package: RulePackage, *, corpus=None) -> Report:
 
     _duplicates(package, report)
     _references(package, report, var_ids, param_ids, entity_ids)
+    check_types(package, report)
     _targets(package, report, var_ids)
     _overrides(package, report, rule_ids)
     _cycles(package, report)
