@@ -43,3 +43,36 @@ packages = ["src/ruleweaver"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+
+# Static analysis. Configured so that /health measures more than one dimension: with only
+# a test runner wired up, a composite score reports that one tool passed, not that the
+# codebase is healthy.
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "C4", "SIM", "RUF"]
+ignore = [
+    # Long lines are re-wrapped by hand where it helps; a hard failure on a citation or a
+    # regulation quote that cannot be split would push those out of the code entirely.
+    "E501",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests deliberately import inside functions to keep optional extras optional, and assert
+# on private structure the public API does not expose.
+"tests/*" = ["B011", "SIM117"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src/ruleweaver"]
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+# Not strict yet. Turning on disallow_untyped_defs today produces hundreds of findings in
+# code that is already covered by tests, which trains everyone to ignore the tool. The
+# ratchet is: keep this green, then raise it one flag at a time.
+check_untyped_defs = true
