@@ -4,6 +4,7 @@
     ruleweaver evaluate   examples/snap/rules.json examples/snap/scenarios/baseline.json
     ruleweaver boundaries examples/snap/rules.json examples/snap/scenarios/baseline.json
     ruleweaver approvals  examples/snap/rules.json
+    ruleweaver ingest     examples/snap/sources/manifest.json
     ruleweaver schema
 
 Exit codes: 0 success, 1 validation or approval failed, 2 bad usage.
@@ -19,6 +20,7 @@ from pathlib import Path
 
 from . import InvalidPackage, load
 from .approval import approved_subset, check
+from .ingest import CorpusError, load_corpus
 from .ir import RulePackage
 from .runtime import Context, Evaluator, ParameterTable
 from .diff import analyse, compare
@@ -89,10 +91,21 @@ def _load_or_exit(path: str, *, verify: bool) -> RulePackage:
         raise SystemExit(1)
 
 
+def _corpus_or_exit(manifest: str | None, *, verify: bool = True):
+    if manifest is None:
+        return None
+    try:
+        return load_corpus(manifest, verify=verify)
+    except CorpusError as exc:
+        print(str(exc), file=sys.stderr)
+        raise SystemExit(1)
+
+
 def cmd_validate(args) -> int:
     package = RulePackage.model_validate(
         json.loads(Path(args.package).read_text(encoding="utf-8")))
-    report = validate(package)
+    corpus = _corpus_or_exit(args.sources)
+    report = validate(package, corpus=corpus)
     print(report)
     if report.errors:
         print(f"\n{len(report.errors)} error(s) — package is not evaluable", file=sys.stderr)
@@ -170,6 +183,35 @@ def cmd_diff(args) -> int:
     return 0
 
 
+def cmd_ingest(args) -> int:
+    """Verify a source corpus and report what was parsed out of it."""
+    corpus = _corpus_or_exit(args.manifest, verify=not args.no_verify)
+
+    if args.clause:
+        for document in corpus.documents.values():
+            clause = document.clause(args.clause) or document.by_citation(args.clause)
+            if clause is not None:
+                print(f"{clause.citation}   [{clause.node_id}] "
+                      f"chars {clause.start_char}-{clause.end_char}")
+                print()
+                print(document.subtree_text(clause.node_id))
+                return 0
+        print(f"no clause {args.clause!r} in this corpus", file=sys.stderr)
+        return 1
+
+    print(corpus)
+    rights = corpus.rights.get("status")
+    if rights:
+        print()
+        print(f"rights: {rights} — {corpus.rights.get('basis', '')}")
+    if corpus.notes:
+        print()
+        print(f"{len(corpus.notes)} parse note(s)")
+        for note in corpus.notes[:20]:
+            print(f"  {note}")
+    return 0
+
+
 def cmd_approvals(args) -> int:
     """Report which rules may execute, and why the rest may not."""
     package = _load_or_exit(args.package, verify=not args.no_verify)
@@ -221,7 +263,16 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("validate", help="check a rule package and report diagnostics")
     p.add_argument("package")
+    p.add_argument("--sources", default=None,
+                   help="source manifest; also checks that every citation resolves")
     p.set_defaults(func=cmd_validate)
+
+    p = sub.add_parser("ingest", help="verify and parse a source corpus")
+    p.add_argument("manifest")
+    p.add_argument("--clause", default=None, help="print one clause by citation or node id")
+    p.add_argument("--no-verify", action="store_true",
+                   help="parse without checking the recorded digests")
+    p.set_defaults(func=cmd_ingest)
 
     p = sub.add_parser("evaluate", help="evaluate a scenario against a rule package")
     p.add_argument("package")
