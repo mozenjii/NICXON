@@ -18,6 +18,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+import re
+
 from ..hashing import digest
 
 # What separates clauses in a document's canonical text. Character offsets are into
@@ -76,6 +78,12 @@ class SourceDocument:
 
     def by_citation(self, citation: str) -> Clause | None:
         return self._by_citation.get(citation)
+
+    def definition(self, term: str) -> Clause | None:
+        """The clause defining `term`, matched on the slug so case and punctuation
+        differences between a rule's vocabulary entry and the published heading do not
+        break the link."""
+        return self._by_id.get("def-" + slugify(term))
 
     def children_of(self, node_id: str | None) -> list[Clause]:
         return [c for c in self.clauses if c.parent_id == node_id]
@@ -151,6 +159,13 @@ def resolve_span(span, documents: dict[str, SourceDocument]) -> SpanResolution:
         if clause is None:
             return SpanResolution(
                 False, f"{span.source_id} has no clause {span.node_id!r}")
+    elif span.term:
+        # A vocabulary entry cites a definitions section by term, not by paragraph — the
+        # definitions carry no markers, so there is no other way to address them.
+        clause = document.definition(span.term)
+        if clause is None:
+            return SpanResolution(
+                False, f"{span.source_id} defines no term {span.term!r}")
     elif span.citation:
         clause = document.by_citation(span.citation)
         if clause is None:
@@ -182,6 +197,12 @@ def resolve_span(span, documents: dict[str, SourceDocument]) -> SpanResolution:
                 False, "the character offsets do not contain the quoted text", clause)
 
     return SpanResolution(True, None, clause)
+
+
+def slugify(term: str) -> str:
+    """The identifier form of a defined term. Shared with the ingester so the two
+    cannot disagree about what `def-elderly-or-disabled-member` means."""
+    return re.sub(r"[^a-z0-9]+", "-", term.lower()).strip("-")
 
 
 def _normalise(text: str) -> str:
