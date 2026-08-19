@@ -7,7 +7,7 @@ an unresolved reference or a lost override changes who receives a benefit.
 
 from __future__ import annotations
 
-from ..ir.expressions import Aggregate, Param, Piecewise, Ref
+from ..ir.expressions import Aggregate, Lit, Param, Piecewise, Ref
 from ..ir.rules import Rule, RulePackage
 from .diagnostics import Diagnostic, Report
 
@@ -170,7 +170,9 @@ def _overrides(pkg: RulePackage, report: Report, rule_ids) -> None:
     overridden = {rid for r in pkg.rules for rid in r.overrides}
     for rid in overridden:
         overriders = [r for r in pkg.rules if rid in r.overrides]
-        if any(getattr(r.when, "op", None) == "literal" and r.when.value is True for r in overriders):
+        # `Lit` is the only node with a `value`; narrowing on the type rather than on
+        # the op string keeps this honest if another literal-like node is ever added.
+        if any(isinstance(r.when, Lit) and r.when.value is True for r in overriders):
             report.add(Diagnostic(
                 "RW3009", "warning", "rule is unconditionally overridden and can never fire",
                 rule_id=rid,
