@@ -8,8 +8,8 @@ Two design choices carry weight:
 
 **Reviewer identity is authenticated, never self-declared.** The audit log's value is
 entirely in "who approved this", so identity resolution is a pluggable dependency rather
-than a form field. The default implementation is deliberately unfit for deployment and
-says so at startup.
+than a form field — see `identity.py`. With nothing configured the application refuses to
+start rather than falling back to a name the client supplies.
 
 **Review duration is measured in the browser.** The number ADR-021 needs is how long a
 human looked at the rule, not how long the request took. The template stamps a monotonic
@@ -31,35 +31,10 @@ from ..ir.rules import RulePackage
 from ..verify import validate
 from .adversarial import AdversarialQueue
 from .decisions import Decision, ReviewEvent, Status
+from .identity import resolver_from_env
 from .store import ReviewStore
 
 TEMPLATES = Path(__file__).parent / "templates"
-
-
-class InsecureReviewerResolver:
-    """Reads the reviewer from a header. **Not fit for deployment.**
-
-    Present so the app runs locally without an identity provider wired up. It warns on
-    construction because an audit log whose reviewer field can be set by the client is
-    not an audit log, and that failure is silent otherwise.
-    """
-
-    def __init__(self) -> None:
-        import warnings
-
-        warnings.warn(
-            "InsecureReviewerResolver trusts the X-Reviewer header. Anyone can claim to "
-            "be anyone. Replace it with a real identity provider before deploying — the "
-            "audit log's value depends entirely on this field being trustworthy.",
-            RuntimeWarning,
-            stacklevel=2,
-        )
-
-    def __call__(self, request: Request) -> str:
-        reviewer = request.headers.get("X-Reviewer") or request.cookies.get("reviewer")
-        if not reviewer:
-            raise HTTPException(401, "no reviewer identity")
-        return reviewer
 
 
 def _rule(package: RulePackage, rule_id: str):
@@ -99,7 +74,10 @@ def create_app(
 ) -> FastAPI:
     app = FastAPI(title="RuleWeaver review", docs_url=None, redoc_url=None)
     templates = Jinja2Templates(directory=str(TEMPLATES))
-    resolve_reviewer = reviewer_resolver or InsecureReviewerResolver()
+    # Fails closed when nothing is configured. Recording approvals against an
+    # identity the client chose is worse than refusing to start: it produces a
+    # log that looks like evidence.
+    resolve_reviewer = reviewer_resolver or resolver_from_env()
     report = validate(package)
 
     def current_queue() -> AdversarialQueue:
