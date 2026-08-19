@@ -8,6 +8,7 @@ import pytest
 
 from conftest import FIXTURE
 from ruleweaver.cli import main
+from ruleweaver.ir import RulePackage
 
 SCENARIO = FIXTURE.parent / "scenarios" / "baseline.json"
 
@@ -89,3 +90,70 @@ class TestDiff:
         out = capsys.readouterr().out
         assert "LEGISLATIVE CHANGE IMPACT" in out
         assert "594.0000 -> 481.5000" in out
+
+
+class TestApprovalGate:
+    """The gate as a user meets it. `--require-approval` is opt-in, so the default
+    behaviour is also pinned here: silently gating every existing caller would be a
+    breaking change dressed up as a safety improvement."""
+
+    @pytest.fixture()
+    def db(self, tmp_path):
+        return f"sqlite:///{tmp_path / 'review.db'}"
+
+    def approve_everything(self, db):
+        from ruleweaver.approval import current_hashes
+        from ruleweaver.review import Decision, ReviewEvent
+        from ruleweaver.review.store import ReviewStore, build_engine
+
+        package = RulePackage.model_validate(
+            json.loads(FIXTURE.read_text(encoding="utf-8")))
+        store = ReviewStore(build_engine(db))
+        for rule_id, (rh, sh) in current_hashes(package).items():
+            store.append(ReviewEvent(rule_id=rule_id, reviewer="alice",
+                                     decision=Decision.APPROVE,
+                                     rule_hash=rh, source_hash=sh))
+
+    def test_evaluate_without_the_flag_does_not_gate(self, capsys):
+        assert main(["evaluate", str(FIXTURE), str(SCENARIO)]) == 0
+        assert "approval gate" not in capsys.readouterr().err
+
+    def test_unreviewed_rules_refuse_to_execute(self, db, capsys):
+        assert main(["evaluate", str(FIXTURE), str(SCENARIO),
+                     "--require-approval", "--database", db]) == 1
+        err = capsys.readouterr().err
+        assert "approval gate" in err
+        assert "nothing was evaluated" in err
+
+    def test_partial_evaluates_the_approved_subset(self, db, capsys):
+        assert main(["evaluate", str(FIXTURE), str(SCENARIO),
+                     "--require-approval", "--partial", "--database", db]) == 0
+        out = capsys.readouterr().out
+        # Inputs still appear; nothing a rule would have decided does.
+        assert "var.household.size" in out
+        assert "is_income_eligible" not in out
+
+    def test_an_approved_package_evaluates_under_the_gate(self, db, capsys):
+        self.approve_everything(db)
+        assert main(["evaluate", str(FIXTURE), str(SCENARIO),
+                     "--require-approval", "--database", db]) == 0
+        out = capsys.readouterr().out
+        assert "is_income_eligible" in out
+        assert "True" in out
+
+
+class TestApprovalsCommand:
+    @pytest.fixture()
+    def db(self, tmp_path):
+        return f"sqlite:///{tmp_path / 'review.db'}"
+
+    def test_reports_every_rule_as_unreviewed(self, db, capsys):
+        assert main(["approvals", str(FIXTURE), "--database", db]) == 1
+        out = capsys.readouterr().out
+        assert "0 approved, 15 blocked" in out
+        assert "rule.snap.allotment" in out
+
+    def test_exits_zero_once_everything_is_approved(self, db, capsys):
+        TestApprovalGate().approve_everything(db)
+        assert main(["approvals", str(FIXTURE), "--database", db]) == 0
+        assert "15 approved, 0 blocked" in capsys.readouterr().out
