@@ -121,9 +121,9 @@ def _lower_rule(rule: Rule) -> Lowered:
     conditions = []
     values = []
     for exception in ordered:
-        conditions.append(lowerer._expr(exception.when))
+        conditions.append(lowerer.expression(exception.when))
         assert exception.substitute is not None
-        values.append(lowerer._expr(exception.substitute.assign.value))
+        values.append(lowerer.expression(exception.substitute.assign.value))
 
     lowerer.result.uses_numpy = True
     lowerer.result.source = (

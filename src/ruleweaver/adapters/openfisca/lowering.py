@@ -73,9 +73,19 @@ class Lowerer:
         self.result = Lowered(source="")
 
     def lower(self, expr: Expr) -> Lowered:
+        """Lower one expression, discarding any previous state."""
         self.result = Lowered(source="")
-        self.result.source = self._expr(expr)
+        self.result.source = self.expression(expr)
         return self.result
+
+    def expression(self, expr: Expr) -> str:
+        """Lower a sub-expression into the *running* result.
+
+        Separate from `lower` so a caller assembling several expressions into one formula —
+        a rule and its exceptions, say — accumulates one set of variable and parameter
+        requirements rather than losing all but the last.
+        """
+        return self._expr(expr)
 
     # ---------- names ----------
 
