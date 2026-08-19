@@ -115,28 +115,32 @@ def generate_mutants(package: RulePackage) -> list[Mutant]:
         for root, root_path in _rule_expr_roots(rule, rid):
             for node, path in _walk_exprs(root, root_path):
                 op = node.get("op")
+                mutated: dict | None
 
                 if op in _COMPARISON_FLIP:
-                    m = _mutate_at(base, r_idx, rid, path, "op", _COMPARISON_FLIP[op])
-                    if m:
-                        emit("comparison_flip", path, f"{op} -> {_COMPARISON_FLIP[op]}", m)
+                    mutated = _mutate_at(base, r_idx, rid, path, "op", _COMPARISON_FLIP[op])
+                    if mutated:
+                        emit("comparison_flip", path,
+                             f"{op} -> {_COMPARISON_FLIP[op]}", mutated)
 
                 elif op in _BOOLEAN_SWAP:
-                    m = _mutate_at(base, r_idx, rid, path, "op", _BOOLEAN_SWAP[op])
-                    if m:
-                        emit("boolean_swap", path, f"{op} -> {_BOOLEAN_SWAP[op]}", m)
+                    mutated = _mutate_at(base, r_idx, rid, path, "op", _BOOLEAN_SWAP[op])
+                    if mutated:
+                        emit("boolean_swap", path, f"{op} -> {_BOOLEAN_SWAP[op]}", mutated)
 
                 elif op == "round":
-                    new = _ROUNDING_FLIP.get(node.get("mode"))
+                    mode = node.get("mode")
+                    new = _ROUNDING_FLIP.get(mode) if mode is not None else None
                     if new:
-                        m = _mutate_at(base, r_idx, rid, path, "mode", new)
-                        if m:
-                            emit("rounding_flip", path, f"round {node['mode']} -> {new}", m)
+                        mutated = _mutate_at(base, r_idx, rid, path, "mode", new)
+                        if mutated:
+                            emit("rounding_flip", path,
+                                 f"round {mode} -> {new}", mutated)
 
                 elif op == "not":
-                    m = _mutate_at(base, r_idx, rid, path, "__unwrap_not__", None)
-                    if m:
-                        emit("drop_negation", path, "not(...) removed", m)
+                    mutated = _mutate_at(base, r_idx, rid, path, "__unwrap_not__", None)
+                    if mutated:
+                        emit("drop_negation", path, "not(...) removed", mutated)
 
                 elif op == "literal" and isinstance(node.get("value"), (int, float, str)):
                     try:
@@ -144,9 +148,10 @@ def generate_mutants(package: RulePackage) -> list[Mutant]:
                         val = Decimal(str(node["value"]))
                     except Exception:
                         continue
-                    m = _mutate_at(base, r_idx, rid, path, "value", str(val + 1))
-                    if m:
-                        emit("literal_perturb", path, f"{node['value']} -> {val + 1}", m)
+                    mutated = _mutate_at(base, r_idx, rid, path, "value", str(val + 1))
+                    if mutated:
+                        emit("literal_perturb", path,
+                             f"{node['value']} -> {val + 1}", mutated)
 
     return mutants
 
